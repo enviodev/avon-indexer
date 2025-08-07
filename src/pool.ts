@@ -62,12 +62,6 @@ Pool.FlashLoan.handler(async ({ event, context }) => {
   context.FlashLoan.set(entity);
 });
 
-// Reference: orderbook-subgraph/src/pool.ts
-Pool.Liquidate.handler(async ({ event, context }) => {
-  // TODO: Implement business logic from subgraph
-  // Reference: orderbook-subgraph/src/pool.ts - handleLiquidate
-});
-
 // Reference: orderbook-subgraph/src/pool.ts - handleLiquidate
 Pool.Liquidate.handler(async ({ event, context }) => {
   const entity: Liquidate = {

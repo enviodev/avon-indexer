@@ -199,6 +199,385 @@ Contract.EventCreated.contractRegister(({ event, context }) => {
 });
 ```
 
+## Contract State Fetching Migration
+
+### Overview
+
+When migrating from TheGraph to Envio, contract state fetching patterns need to be updated. TheGraph uses `.bind()` patterns for contract state access, while Envio requires explicit RPC calls using Viem or similar libraries.
+
+### 1. Identify Contract State Usage
+
+**Look for `.bind()` patterns in the original subgraph:**
+
+```typescript
+// OLD SUBGRAPH PATTERN - Contract State Fetching
+let token = Token.bind(event.params.token);
+let vault = Vault.bind(event.params.vault);
+
+// Access contract state
+entity.name = token.name();
+entity.symbol = token.symbol();
+entity.decimals = token.decimals();
+entity.totalSupply = token.totalSupply();
+
+// Vault state
+entity.asset = vault.asset();
+entity.totalAssets = vault.totalAssets();
+entity.totalShares = vault.totalSupply();
+```
+
+### 2. Create Contract Helper Functions
+
+**Create utility functions for contract state fetching:**
+
+```typescript
+// src/utils/contractHelpers.ts
+export interface TokenMetadata {
+  name: string;
+  symbol: string;
+  decimals: number;
+  totalSupply: bigint;
+}
+
+
+
+/**
+ * Fetch ERC20 token metadata using Viem RPC calls
+ * @param tokenAddress The token contract address (can be vault or token)
+ * @returns Promise<TokenMetadata> Token metadata
+ */
+export async function getTokenMetadata(tokenAddress: string): Promise<TokenMetadata> {
+  try {
+    const [name, symbol, decimals, totalSupply] = await Promise.all([
+      publicClient.readContract({
+        address: tokenAddress as `0x${string}`,
+        abi: ERC20_ABI,
+        functionName: 'name',
+      }),
+      publicClient.readContract({
+        address: tokenAddress as `0x${string}`,
+        abi: ERC20_ABI,
+        functionName: 'symbol',
+      }),
+      publicClient.readContract({
+        address: tokenAddress as `0x${string}`,
+        abi: ERC20_ABI,
+        functionName: 'decimals',
+      }),
+      publicClient.readContract({
+        address: tokenAddress as `0x${string}`,
+        abi: ERC20_ABI,
+        functionName: 'totalSupply',
+      }),
+    ]);
+
+    return {
+      name,
+      symbol,
+      decimals: Number(decimals),
+      totalSupply,
+    };
+  } catch (error) {
+    console.error(`Error fetching token metadata for ${tokenAddress}:`, error);
+    throw error;
+  }
+}
+
+
+
+/**
+ * Batch fetch token metadata for multiple tokens
+ * @param tokenAddresses Array of token addresses
+ * @returns Promise<TokenMetadata[]> Array of token metadata
+ */
+export async function getBatchTokenMetadata(tokenAddresses: string[]): Promise<TokenMetadata[]> {
+  const promises = tokenAddresses.map(address => getTokenMetadata(address));
+  return Promise.all(promises);
+}
+
+
+```
+
+### 3. Implement Viem Contract State Fetching
+
+**For production use, implement actual Viem RPC calls:**
+
+```typescript
+import { createPublicClient, http, parseAbi } from 'viem';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
+
+// ERC20 ABI for basic token functions
+const ERC20_ABI = parseAbi([
+  'function name() view returns (string)',
+  'function symbol() view returns (string)',
+  'function decimals() view returns (uint8)',
+  'function totalSupply() view returns (uint256)',
+  'function balanceOf(address) view returns (uint256)',
+]);
+
+
+
+// Create a public client for reading contract state
+// Using MegaETH testnet (network ID 6342)
+const publicClient = createPublicClient({
+  chain: {
+    id: 6342,
+    name: 'MegaETH Testnet',
+    network: 'megaeth-testnet',
+    nativeCurrency: {
+      decimals: 18,
+      name: 'MegaETH',
+      symbol: 'METH',
+    },
+    rpcUrls: {
+      default: {
+        http: [process.env.RPC_URL || 'https://rpc.ankr.com/megaeth_testnet'],
+      },
+      public: {
+        http: [process.env.RPC_URL || 'https://rpc.ankr.com/megaeth_testnet'],
+      },
+    },
+  },
+  transport: http(process.env.RPC_URL),
+});
+
+
+
+
+```
+
+### 4. Handler Implementation Pattern
+
+**Replace `.bind()` patterns with async contract state fetching:**
+
+```typescript
+// OLD SUBGRAPH PATTERN:
+Contract.EventName.handler((event) => {
+  let token = Token.bind(event.params.token);
+  let entity = new Entity();
+  entity.name = token.name();
+  entity.symbol = token.symbol();
+  entity.save();
+});
+
+// NEW ENVIO PATTERN:
+Contract.EventName.handler(async ({ event, context }) => {
+  try {
+    // Fetch contract state using helper functions
+    const tokenMetadata = await getTokenMetadata(event.params.token);
+    const vaultMetadata = await getTokenMetadata(event.params.vault); // Vault is also an ERC20 token
+    
+    // Create entity with fetched data
+    const entity: Entity = {
+      id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
+      name: tokenMetadata.name,
+      symbol: tokenMetadata.symbol,
+      decimals: BigInt(tokenMetadata.decimals),
+      totalSupply: tokenMetadata.totalSupply,
+      vaultName: vaultMetadata.name,
+      vaultSymbol: vaultMetadata.symbol,
+      vaultDecimals: BigInt(vaultMetadata.decimals),
+      vaultTotalSupply: vaultMetadata.totalSupply,
+      blockNumber: BigInt(event.block.number),
+      blockTimestamp: BigInt(event.block.timestamp),
+      transactionHash: event.transaction.hash,
+    };
+
+    context.Entity.set(entity);
+  } catch (error) {
+    console.error(`Error in EventName handler: ${error}`);
+    // Don't throw - let the indexer continue
+  }
+});
+```
+
+### 5. Factory Contract Registration with State Fetching
+
+**Example: Vault Factory with contract state fetching:**
+
+```typescript
+// Reference: original-subgraph/src/vaultFactory.ts
+VaultFactory.VaultCreated.contractRegister(({ event, context }) => {
+  context.addVault(event.params.vault);
+});
+
+VaultFactory.VaultCreated.handler(async ({ event, context }) => {
+  try {
+    // Get or create VaultFactory entity
+    let vaultFactory = await context.VaultFactory.get(ONE_BI.toString());
+    if (!vaultFactory) {
+      vaultFactory = {
+        id: ONE_BI.toString(),
+        totalVaults: ZERO_BI,
+        timestamp: BigInt(event.block.timestamp),
+        lastUpdate: BigInt(event.block.timestamp),
+      };
+    }
+
+    // Update vault factory stats
+    const updatedVaultFactory = {
+      ...vaultFactory,
+      totalVaults: vaultFactory.totalVaults + ONE_BI,
+      lastUpdate: BigInt(event.block.timestamp),
+    };
+    context.VaultFactory.set(updatedVaultFactory);
+
+    // Fetch ERC20 metadata for both vault and token (parallel)
+    const [vaultMetadata, tokenMetadata] = await Promise.all([
+      getTokenMetadata(event.params.vault), // Vault is also an ERC20 token
+      getTokenMetadata(event.params.token), // Token is an ERC20 token
+    ]);
+    
+    // Get or create Token entity
+    let token = await context.Token.get(event.params.token);
+    if (!token) {
+      token = {
+        id: event.params.token,
+        name: tokenMetadata.name,
+        symbol: tokenMetadata.symbol,
+        decimals: BigInt(tokenMetadata.decimals),
+        rate: ZERO_BD as any,
+        dataFeedId: event.params.token,
+        updatedAt: BigInt(event.block.timestamp),
+        blockNumber: BigInt(event.block.number),
+        blockTimestamp: BigInt(event.block.timestamp),
+        transactionHash: event.transaction.hash,
+        address: event.params.token,
+      };
+      context.Token.set(token);
+    }
+
+    // Calculate derived values
+    let convertToAssetsMultiplier = ONE_BD as any;
+    // In a real implementation, you would calculate this based on vault state
+    // For now, use ONE_BD to match the original subgraph logic
+
+    // Create VaultDataEntity with fetched contract state
+    const vault: VaultDataEntity = {
+      id: event.params.vault,
+      name: vaultMetadata.name, // Use vault's ERC20 metadata
+      symbol: vaultMetadata.symbol, // Use vault's ERC20 metadata
+      decimals: BigInt(vaultMetadata.decimals), // Use vault's ERC20 decimals
+      manager: event.params.poolManager,
+      timestamp: BigInt(event.block.timestamp),
+      lastUpdate: BigInt(event.block.timestamp),
+      fee: ZERO_BI,
+      depositApy: ZERO_BI, // Will be calculated later
+      convertToAssetsMultiplier,
+      totalDepositsVolume: ZERO_BI,
+      totalWithdrawalsVolume: ZERO_BI,
+      totalAssets: ZERO_BI, // Will be updated later
+      totalShares: ZERO_BI, // Will be updated later
+      token_id: event.params.token,
+      vaultFactory_id: ONE_BI.toString(),
+    };
+
+    context.VaultDataEntity.set(vault);
+
+  } catch (error) {
+    console.error(`Error in VaultCreated handler: ${error}`);
+    // Don't throw - let the indexer continue
+  }
+});
+```
+
+### 6. Error Handling for Contract State Fetching
+
+**Always include proper error handling for RPC calls:**
+
+```typescript
+Contract.EventName.handler(async ({ event, context }) => {
+  try {
+    // Fetch contract state
+    const tokenMetadata = await getTokenMetadata(event.params.token);
+    
+    // Create entity with fetched data
+    const entity: Entity = {
+      // ... entity fields
+    };
+
+    context.Entity.set(entity);
+  } catch (error) {
+    console.error(`Error fetching contract state for ${event.params.token}:`, error);
+    
+    // Option 1: Use default values
+    const entity: Entity = {
+      // ... entity fields with defaults
+    };
+    context.Entity.set(entity);
+    
+    // Option 2: Skip entity creation
+    // return;
+    
+    // Option 3: Re-throw to stop processing
+    // throw error;
+  }
+});
+```
+
+### 7. Batch Contract State Fetching
+
+**For efficiency, batch multiple contract state fetches:**
+
+```typescript
+Contract.EventName.handler(async ({ event, context }) => {
+  try {
+    // Batch fetch multiple contract states
+    const [tokenMetadata, vaultMetadata, poolMetadata] = await Promise.all([
+      getTokenMetadata(event.params.token),
+      getTokenMetadata(event.params.vault), // Vault is also an ERC20 token
+      getPoolMetadata(event.params.pool),
+    ]);
+    
+    // Create entities with all fetched data
+    const entity: Entity = {
+      // ... entity fields using all metadata
+    };
+
+    context.Entity.set(entity);
+  } catch (error) {
+    console.error(`Error in batch contract state fetch:`, error);
+    // Handle error appropriately
+  }
+});
+```
+
+### 8. Configuration for Contract State Fetching
+
+**Add field selection for events that need transaction data:**
+
+```yaml
+# config.yaml
+- name: VaultFactory
+  address:
+    - 0x595c417199933898d6e83968F96F5FA5faa36C1f
+  handler: src/vaultFactory.ts
+  events:
+    - event: VaultCreated(address indexed vault, address indexed token, address indexed poolManager)
+      field_selection:
+        transaction_fields:
+          - hash
+```
+
+### 9. Dependencies Installation
+
+**Install Viem for contract state fetching:**
+
+```bash
+pnpm add viem
+```
+
+### 10. Validation Commands
+
+**After implementing contract state fetching:**
+
+1. `pnpm codegen` - Regenerate types after schema changes
+2. `pnpm tsc --noEmit` - Check TypeScript compilation
+3. `TUI_OFF=true pnpm dev` - Test runtime behavior with contract state fetching
+
 ## Key Differences Between TheGraph and Envio
 
 ### 1. Entity Relationships
@@ -553,5 +932,250 @@ Contract.EventName.handler(async ({ event, context }) => {
     // Don't throw - let the indexer continue
   }
 });
+```
+
+### 11. ERC20 Token Metadata Fetching Logic
+
+**Important Correction:** Both vault and token are ERC20 tokens, so use the same metadata fetching function:
+
+```typescript
+// CORRECT: Both vault and token are ERC20 tokens
+const [vaultMetadata, tokenMetadata] = await Promise.all([
+  getTokenMetadata(event.params.vault), // Vault is also an ERC20 token
+  getTokenMetadata(event.params.token), // Token is an ERC20 token
+]);
+
+// Use vault's ERC20 metadata for vault entity
+const vault: VaultDataEntity = {
+  id: event.params.vault,
+  name: vaultMetadata.name,        // Vault's ERC20 name
+  symbol: vaultMetadata.symbol,    // Vault's ERC20 symbol
+  decimals: BigInt(vaultMetadata.decimals), // Vault's ERC20 decimals
+  // ... other fields
+};
+```
+
+**Common Mistake to Avoid:**
+```typescript
+// ❌ WRONG: Don't create separate vault metadata functions
+// Both vault and token are ERC20 tokens, use the same function
+export async function getVaultMetadata() // This doesn't exist
+export async function getTokenMetadata() // Use this for both
+```
+
+### 12. ConvertToAssetsMultiplier Initialization
+
+**Match the original subgraph logic for initial values:**
+
+```typescript
+// OLD SUBGRAPH PATTERN:
+vaultEntry.convertToAssetsMultiplier = new BigDecimal(ONE_BD);
+
+// NEW ENVIO PATTERN:
+let convertToAssetsMultiplier = ONE_BD as any;
+// In a real implementation, you would calculate this based on vault state
+// For now, use ONE_BD to match the original subgraph logic
+```
+
+**Import the correct constants:**
+```typescript
+import { ONE_BI, ZERO_BI, ZERO_BD, ONE_BD } from "./utils/constants";
+```
+
+### 13. Environment Variables for RPC Access
+
+**Set up environment variables for contract state fetching:**
+
+```bash
+# .env file
+RPC_URL=https://rpc.ankr.com/megaeth_testnet
+```
+
+**Install required dependencies:**
+```bash
+pnpm add viem dotenv
+```
+
+**Load environment variables in contract helpers:**
+```typescript
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
+
+// Create a public client for reading contract state
+const publicClient = createPublicClient({
+  chain: avalancheFuji,
+  transport: http(process.env.RPC_URL),
+});
+```
+
+### 14. Optimized Token Metadata Fetching
+
+**Only fetch token metadata when token doesn't exist:**
+
+```typescript
+// Get or create Token entity - only fetch token metadata if token doesn't exist
+let token = await context.Token.get(event.params.token);
+
+if (!token) {
+  // Only fetch token metadata when token doesn't exist (optimization)
+  const tokenMetadata = await getTokenMetadata(event.params.token);
+  
+  token = {
+    id: event.params.token,
+    name: tokenMetadata.name,
+    symbol: tokenMetadata.symbol,
+    decimals: BigInt(tokenMetadata.decimals),
+    // ... other fields
+  };
+  context.Token.set(token);
+}
+// If token exists, use existing data - no RPC call needed
+```
+
+### 15. Complete Vault Factory Implementation
+
+**Full example with all optimizations:**
+
+```typescript
+VaultFactory.VaultCreated.handler(async ({ event, context }) => {
+  try {
+    // Get or create VaultFactory entity
+    let vaultFactory = await context.VaultFactory.get(ONE_BI.toString());
+    if (!vaultFactory) {
+      vaultFactory = {
+        id: ONE_BI.toString(),
+        totalVaults: ZERO_BI,
+        timestamp: BigInt(event.block.timestamp),
+        lastUpdate: BigInt(event.block.timestamp),
+      };
+    }
+
+    // Update vault factory stats
+    const updatedVaultFactory = {
+      ...vaultFactory,
+      totalVaults: vaultFactory.totalVaults + ONE_BI,
+      lastUpdate: BigInt(event.block.timestamp),
+    };
+    context.VaultFactory.set(updatedVaultFactory);
+
+    // Fetch ERC20 metadata for both vault and token (parallel)
+    const [vaultMetadata, tokenMetadata] = await Promise.all([
+      getTokenMetadata(event.params.vault), // Vault is also an ERC20 token
+      getTokenMetadata(event.params.token), // Token is an ERC20 token
+    ]);
+    
+    // Create VaultDataEntity with vault's ERC20 metadata
+    const vault: VaultDataEntity = {
+      id: event.params.vault,
+      name: vaultMetadata.name, // Use vault's ERC20 metadata
+      symbol: vaultMetadata.symbol, // Use vault's ERC20 metadata
+      decimals: BigInt(vaultMetadata.decimals), // Use vault's ERC20 decimals
+      manager: event.params.poolManager,
+      timestamp: BigInt(event.block.timestamp),
+      lastUpdate: BigInt(event.block.timestamp),
+      fee: ZERO_BI,
+      depositApy: ZERO_BI, // Will be calculated later
+      convertToAssetsMultiplier: ONE_BD as any, // Match original subgraph logic
+      totalDepositsVolume: ZERO_BI,
+      totalWithdrawalsVolume: ZERO_BI,
+      totalAssets: ZERO_BI, // Will be updated later
+      totalShares: ZERO_BI, // Will be updated later
+      token_id: event.params.token,
+      vaultFactory_id: ONE_BI.toString(),
+    };
+
+    // Get or create Token entity - only fetch if doesn't exist
+    let token = await context.Token.get(event.params.token);
+    
+    if (!token) {
+      // Only fetch token metadata when token doesn't exist (optimization)
+      token = {
+        id: event.params.token,
+        name: tokenMetadata.name,
+        symbol: tokenMetadata.symbol,
+        decimals: BigInt(tokenMetadata.decimals),
+        rate: ZERO_BD as any,
+        dataFeedId: event.params.token,
+        updatedAt: BigInt(event.block.timestamp),
+        blockNumber: BigInt(event.block.number),
+        blockTimestamp: BigInt(event.block.timestamp),
+        transactionHash: event.transaction.hash,
+        address: event.params.token,
+      };
+      context.Token.set(token);
+    }
+
+    // Set convertToAssetsMultiplier to ONE_BD (match original subgraph)
+    const updatedVault: VaultDataEntity = {
+      ...vault,
+      convertToAssetsMultiplier: ONE_BD as any,
+    };
+
+    context.VaultDataEntity.set(updatedVault);
+
+  } catch (error) {
+    console.error(`Error in VaultCreated handler: ${error}`);
+    // Don't throw - let the indexer continue
+  }
+});
+```
+
+### 16. Network Configuration
+
+**Configure the correct network for your indexer:**
+
+```typescript
+// Create a public client for reading contract state
+// Using MegaETH testnet (network ID 6342)
+const publicClient = createPublicClient({
+  chain: {
+    id: 6342,
+    name: 'MegaETH Testnet',
+    network: 'megaeth-testnet',
+    nativeCurrency: {
+      decimals: 18,
+      name: 'MegaETH',
+      symbol: 'METH',
+    },
+    rpcUrls: {
+      default: {
+        http: [process.env.RPC_URL || 'https://rpc.ankr.com/megaeth_testnet'],
+      },
+      public: {
+        http: [process.env.RPC_URL || 'https://rpc.ankr.com/megaeth_testnet'],
+      },
+    },
+  },
+  transport: http(process.env.RPC_URL),
+});
+```
+
+**Set up environment variables:**
+```bash
+# .env file
+RPC_URL=https://rpc.ankr.com/megaeth_testnet
+```
+
+**Load environment variables:**
+```typescript
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
+```
+
+**Common Network IDs:**
+- MegaETH Testnet: 6342
+- Ethereum Mainnet: 1
+- Avalanche Fuji: 43113
+- Polygon Mumbai: 80001
+
+**Check your config.yaml for the correct network ID:**
+```yaml
+networks:
+- id: 6342  # This determines which network to use
+  start_block: 0
 ```
 

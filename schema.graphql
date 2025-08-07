@@ -565,9 +565,11 @@ type VaultFactory {
   totalVaults: BigInt!
 }
 
-# to-do
 type VaultDataEntity {
   id: ID!
+  name: String
+  symbol: String
+  decimals: BigInt!
   manager: String!
   timestamp: BigInt!
   lastUpdate: BigInt!
@@ -580,9 +582,6 @@ type VaultDataEntity {
   totalShares: BigInt!
   token_id: String!
   vaultFactory_id: String!
-  name: String
-  symbol: String
-  decimals: BigInt!
 }
 
 # to-do

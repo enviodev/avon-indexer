@@ -22,6 +22,9 @@ networks:
     handler: src/vaultFactory.ts
     events:
     - event: VaultCreated(address indexed vault, address indexed token, address indexed poolManager)
+      field_selection:
+        transaction_fields:
+          - hash
   - name: OrderBook
     handler: src/orderbook.ts
     events:
