@@ -37,334 +37,179 @@ import {
   VaultFactory_VaultCreated,
 } from "generated";
 
+// Reference: orderbook-subgraph/src/orderbook.ts
 OrderBook.BorrowOrderCanceled.handler(async ({ event, context }) => {
-  const entity: OrderBook_BorrowOrderCanceled = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    borrower: event.params.borrower,
-    rate: event.params.rate,
-    ltv: event.params.ltv,
-    amount: event.params.amount,
-  };
-
-  context.OrderBook_BorrowOrderCanceled.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/orderbook.ts - handleBorrowOrderCancelled
 });
 
+// Reference: orderbook-subgraph/src/orderbook.ts
 OrderBook.BorrowOrderPlaced.handler(async ({ event, context }) => {
-  const entity: OrderBook_BorrowOrderPlaced = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    borrower: event.params.borrower,
-    rate: event.params.rate,
-    ltv: event.params.ltv,
-    amount: event.params.amount,
-    minAmountExpected: event.params.minAmountExpected,
-  };
-
-  context.OrderBook_BorrowOrderPlaced.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/orderbook.ts - handleBorrowOrderPlaced
 });
 
+// Reference: orderbook-subgraph/src/orderbook.ts
 OrderBook.OrderCanceled.handler(async ({ event, context }) => {
-  const entity: OrderBook_OrderCanceled = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    isLender: event.params.isLender,
-    maker: event.params.maker,
-    rate: event.params.rate,
-    ltv: event.params.ltv,
-    amount: event.params.amount,
-  };
-
-  context.OrderBook_OrderCanceled.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/orderbook.ts - handleOrderCanceled
 });
 
+// Reference: orderbook-subgraph/src/orderbook.ts
 OrderBook.OrderInserted.handler(async ({ event, context }) => {
-  const entity: OrderBook_OrderInserted = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    isLender: event.params.isLender,
-    maker: event.params.maker,
-    rate: event.params.rate,
-    ltv: event.params.ltv,
-    amount: event.params.amount,
-  };
-
-  context.OrderBook_OrderInserted.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/orderbook.ts - handleOrderInserted
 });
 
+// Reference: orderbook-subgraph/src/orderbook.ts
 OrderBook.OrderMatched.handler(async ({ event, context }) => {
-  const entity: OrderBook_OrderMatched = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    lender: event.params.lender,
-    borrower: event.params.borrower,
-    rate: event.params.rate,
-    ltv: event.params.ltv,
-    amount: event.params.amount,
-  };
-
-  context.OrderBook_OrderMatched.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/orderbook.ts - handleOrderMatched
 });
 
+// Reference: orderbook-subgraph/src/orderbook.ts
 OrderBook.OwnershipTransferStarted.handler(async ({ event, context }) => {
-  const entity: OrderBook_OwnershipTransferStarted = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    previousOwner: event.params.previousOwner,
-    newOwner: event.params.newOwner,
-  };
-
-  context.OrderBook_OwnershipTransferStarted.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/orderbook.ts - handleOwnershipTransferStarted
 });
 
+// Reference: orderbook-subgraph/src/orderbook.ts
 OrderBook.OwnershipTransferred.handler(async ({ event, context }) => {
-  const entity: OrderBook_OwnershipTransferred = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    previousOwner: event.params.previousOwner,
-    newOwner: event.params.newOwner,
-  };
-
-  context.OrderBook_OwnershipTransferred.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/orderbook.ts - handleOwnershipTransferred
 });
 
+// Reference: orderbook-subgraph/src/orderbook.ts
 OrderBook.Paused.handler(async ({ event, context }) => {
-  const entity: OrderBook_Paused = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    account: event.params.account,
-  };
-
-  context.OrderBook_Paused.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/orderbook.ts - handlePaused
 });
 
+// Reference: orderbook-subgraph/src/orderbook.ts
 OrderBook.PoolWhitelisted.handler(async ({ event, context }) => {
-  const entity: OrderBook_PoolWhitelisted = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    pool: event.params.pool,
-  };
-
-  context.OrderBook_PoolWhitelisted.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/orderbook.ts - handlePoolWhitelisted
 });
 
+// Reference: orderbook-subgraph/src/orderbook.ts
 OrderBook.Unpaused.handler(async ({ event, context }) => {
-  const entity: OrderBook_Unpaused = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    account: event.params.account,
-  };
-
-  context.OrderBook_Unpaused.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/orderbook.ts - handleUnpaused
 });
 
+// Reference: orderbook-subgraph/src/orderbookFactory.ts
 OrderbookFactory.OrderbookCreated.contractRegister(({ event, context }) => {
   context.addOrderBook(event.params.orderbook);
 });
 
+// Reference: orderbook-subgraph/src/orderbookFactory.ts
 OrderbookFactory.OrderbookCreated.handler(async ({ event, context }) => {
-  
-  
-  const entity: OrderbookFactory_OrderbookCreated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    loanToken: event.params.loanToken,
-    collateralToken: event.params.collateralToken,
-    orderbook: event.params.orderbook,
-  };
-
-  context.OrderbookFactory_OrderbookCreated.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/orderbookFactory.ts - handleOrderbookCreated
 });
 
+// Reference: orderbook-subgraph/src/pool.ts
 Pool.AccrueInterest.handler(async ({ event, context }) => {
-  const entity: Pool_AccrueInterest = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolAddress: event.params.poolAddress,
-    prevBorrowRate: event.params.prevBorrowRate,
-    interest: event.params.interest,
-    feeShares: event.params.feeShares,
-  };
-
-  context.Pool_AccrueInterest.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/pool.ts - handleAccrueInterest
 });
 
+// Reference: orderbook-subgraph/src/pool.ts
 Pool.Approval.handler(async ({ event, context }) => {
-  const entity: Pool_Approval = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    owner: event.params.owner,
-    spender: event.params.spender,
-    value: event.params.value,
-  };
-
-  context.Pool_Approval.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/pool.ts - handleApproval
 });
 
+// Reference: orderbook-subgraph/src/pool.ts
 Pool.Borrow.handler(async ({ event, context }) => {
-  const entity: Pool_Borrow = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolAddress: event.params.poolAddress,
-    caller: event.params.caller,
-    onBehalf: event.params.onBehalf,
-    receiver: event.params.receiver,
-    assets: event.params.assets,
-    shares: event.params.shares,
-  };
-
-  context.Pool_Borrow.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/pool.ts - handleBorrow
 });
 
+// Reference: orderbook-subgraph/src/pool.ts
 Pool.Deposit.handler(async ({ event, context }) => {
-  const entity: Pool_Deposit = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    sender: event.params.sender,
-    owner: event.params.owner,
-    assets: event.params.assets,
-    shares: event.params.shares,
-  };
-
-  context.Pool_Deposit.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/pool.ts - handleDeposit
 });
 
+// Reference: orderbook-subgraph/src/pool.ts
 Pool.DepositCollateral.handler(async ({ event, context }) => {
-  const entity: Pool_DepositCollateral = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolAddress: event.params.poolAddress,
-    caller: event.params.caller,
-    onBehalf: event.params.onBehalf,
-    assets: event.params.assets,
-  };
-
-  context.Pool_DepositCollateral.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/pool.ts - handleDepositCollateral
 });
 
+// Reference: orderbook-subgraph/src/pool.ts
 Pool.FlashLoan.handler(async ({ event, context }) => {
-  const entity: Pool_FlashLoan = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    caller: event.params.caller,
-    token: event.params.token,
-    assets: event.params.assets,
-  };
-
-  context.Pool_FlashLoan.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/pool.ts - handleFlashLoan
 });
 
+// Reference: orderbook-subgraph/src/pool.ts
 Pool.Liquidate.handler(async ({ event, context }) => {
-  const entity: Pool_Liquidate = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolAddress: event.params.poolAddress,
-    caller: event.params.caller,
-    borrower: event.params.borrower,
-    repaidAssets: event.params.repaidAssets,
-    repaidShares: event.params.repaidShares,
-    seizedAssets: event.params.seizedAssets,
-    badDebtAssets: event.params.badDebtAssets,
-    badDebtShares: event.params.badDebtShares,
-  };
-
-  context.Pool_Liquidate.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/pool.ts - handleLiquidate
 });
 
+// Reference: orderbook-subgraph/src/pool.ts
 Pool.Repay.handler(async ({ event, context }) => {
-  const entity: Pool_Repay = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolAddress: event.params.poolAddress,
-    caller: event.params.caller,
-    onBehalf: event.params.onBehalf,
-    assets: event.params.assets,
-    shares: event.params.shares,
-  };
-
-  context.Pool_Repay.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/pool.ts - handleRepay
 });
 
+// Reference: orderbook-subgraph/src/pool.ts
 Pool.Transfer.handler(async ({ event, context }) => {
-  const entity: Pool_Transfer = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    from: event.params.from,
-    to: event.params.to,
-    value: event.params.value,
-  };
-
-  context.Pool_Transfer.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/pool.ts - handleTransfer
 });
 
+// Reference: orderbook-subgraph/src/pool.ts
 Pool.Withdraw.handler(async ({ event, context }) => {
-  const entity: Pool_Withdraw = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    sender: event.params.sender,
-    receiver: event.params.receiver,
-    owner: event.params.owner,
-    assets: event.params.assets,
-    shares: event.params.shares,
-  };
-
-  context.Pool_Withdraw.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/pool.ts - handleWithdraw
 });
 
+// Reference: orderbook-subgraph/src/pool.ts
 Pool.WithdrawCollateral.handler(async ({ event, context }) => {
-  const entity: Pool_WithdrawCollateral = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    poolAddress: event.params.poolAddress,
-    caller: event.params.caller,
-    onBehalf: event.params.onBehalf,
-    receiver: event.params.receiver,
-    assets: event.params.assets,
-  };
-
-  context.Pool_WithdrawCollateral.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/pool.ts - handleWithdrawCollateral
 });
 
+// Reference: orderbook-subgraph/src/poolFactory.ts
 PoolFactory.PoolCreated.contractRegister(({ event, context }) => {
   context.addPool(event.params.pool);
 });
 
+// Reference: orderbook-subgraph/src/poolFactory.ts
 PoolFactory.PoolCreated.handler(async ({ event, context }) => {
-  const entity: PoolFactory_PoolCreated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    pool: event.params.pool,
-    loanToken: event.params.loanToken,
-    collateralToken: event.params.collateralToken,
-  };
-
-  context.PoolFactory_PoolCreated.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/poolFactory.ts - handlePoolCreated
 });
 
+// Reference: orderbook-subgraph/src/vault.ts
 Vault.Deposit.handler(async ({ event, context }) => {
-  const entity: Vault_Deposit = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    sender: event.params.sender,
-    owner: event.params.owner,
-    assets: event.params.assets,
-    shares: event.params.shares,
-  };
-
-  context.Vault_Deposit.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/vault.ts - handleDeposit
 });
 
+// Reference: orderbook-subgraph/src/vault.ts
 Vault.Transfer.handler(async ({ event, context }) => {
-  const entity: Vault_Transfer = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    from: event.params.from,
-    to: event.params.to,
-    value: event.params.value,
-  };
-
-  context.Vault_Transfer.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/vault.ts - handleTransfer
 });
 
+// Reference: orderbook-subgraph/src/vault.ts
 Vault.Withdraw.handler(async ({ event, context }) => {
-  const entity: Vault_Withdraw = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    sender: event.params.sender,
-    receiver: event.params.receiver,
-    owner: event.params.owner,
-    assets: event.params.assets,
-    shares: event.params.shares,
-  };
-
-  context.Vault_Withdraw.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/vault.ts - handleWithdraw
 });
 
+// Reference: orderbook-subgraph/src/vaultFactory.ts
 VaultFactory.VaultCreated.contractRegister(({ event, context }) => {
   context.addVault(event.params.vault);
 });
 
+// Reference: orderbook-subgraph/src/vaultFactory.ts
 VaultFactory.VaultCreated.handler(async ({ event, context }) => {
-  const entity: VaultFactory_VaultCreated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    vault: event.params.vault,
-    token: event.params.token,
-    poolManager: event.params.poolManager,
-  };
-
-  context.VaultFactory_VaultCreated.set(entity);
+  // TODO: Implement business logic from subgraph
+  // Reference: orderbook-subgraph/src/vaultFactory.ts - handleVaultCreated
 });
