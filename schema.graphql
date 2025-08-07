@@ -200,7 +200,6 @@ type FlashLoan {
   transactionHash: String!
 }
 
-# to-do
 type Liquidate {
   id: ID!
   Pool_id: String!

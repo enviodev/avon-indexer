@@ -5,6 +5,7 @@ import {
   Pool,
   Approval,
   FlashLoan,
+  Liquidate,
 } from "generated";
 
 // Reference: orderbook-subgraph/src/pool.ts
@@ -65,6 +66,26 @@ Pool.FlashLoan.handler(async ({ event, context }) => {
 Pool.Liquidate.handler(async ({ event, context }) => {
   // TODO: Implement business logic from subgraph
   // Reference: orderbook-subgraph/src/pool.ts - handleLiquidate
+});
+
+// Reference: orderbook-subgraph/src/pool.ts - handleLiquidate
+Pool.Liquidate.handler(async ({ event, context }) => {
+  const entity: Liquidate = {
+    id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
+    pool_id: event.srcAddress,
+    caller: event.params.caller,
+    borrower: event.params.borrower,
+    repaidAssets: event.params.repaidAssets,
+    repaidShares: event.params.repaidShares,
+    seizedAssets: event.params.seizedAssets,
+    badDebtAssets: event.params.badDebtAssets,
+    badDebtShares: event.params.badDebtShares,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  };
+
+  context.Liquidate.set(entity);
 });
 
 // Reference: orderbook-subgraph/src/pool.ts

@@ -6,6 +6,7 @@ import {
   Approval,
   OwnershipTransferred,
   Transfer,
+  OwnershipTransferStarted,
 } from "generated";
 
 // Reference: orderbook-subgraph/src/vault.ts - handleApproval
@@ -62,4 +63,18 @@ Vault.Deposit.handler(async ({ event, context }) => {
 Vault.Withdraw.handler(async ({ event, context }) => {
   // TODO: Implement business logic from subgraph
   // Reference: orderbook-subgraph/src/vault.ts - handleWithdraw
+});
+
+// Reference: orderbook-subgraph/src/vault.ts - handleOwnershipTransferStarted
+Vault.OwnershipTransferStarted.handler(async ({ event, context }) => {
+  const entity: OwnershipTransferStarted = {
+    id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
+    previousOwner: event.params.previousOwner,
+    newOwner: event.params.newOwner,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  };
+
+  context.OwnershipTransferStarted.set(entity);
 }); 

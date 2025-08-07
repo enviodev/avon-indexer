@@ -78,6 +78,9 @@ networks:
         transaction_fields:
           - hash
     - event: Liquidate(address indexed poolAddress, address indexed caller, address indexed borrower, uint256 repaidAssets, uint256 repaidShares, uint256 seizedAssets, uint256 badDebtAssets, uint256 badDebtShares)
+      field_selection:
+        transaction_fields:
+          - hash
     - event: Repay(address indexed poolAddress, address indexed caller, address indexed onBehalf, uint256 assets, uint256 shares)
     - event: Transfer(address indexed from, address indexed to, uint256 value)
     - event: Withdraw(address indexed sender, address indexed receiver, address indexed owner, uint256 assets, uint256 shares)
@@ -86,6 +89,10 @@ networks:
     handler: src/vault.ts
     events:
     - event: Approval(address indexed owner, address indexed spender, uint256 value)
+      field_selection:
+        transaction_fields:
+          - hash
+    - event: OwnershipTransferStarted(address indexed previousOwner, address indexed newOwner)
       field_selection:
         transaction_fields:
           - hash
