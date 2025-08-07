@@ -261,6 +261,27 @@ For each handler, examine the corresponding subgraph file:
 
 4. **Validate with `pnpm codegen` and `pnpm tsc --noEmit`** after each implementation.
 
+**Batch Implementation Pattern:**
+
+For multiple similar entities, implement them all at once:
+
+1. **Add field selection for all events** that need transaction hash
+2. **Implement all handlers** following the same pattern
+3. **Remove all `# to-do` comments** for completed entities
+4. **Validate the entire batch** with codegen and TypeScript checks
+
+**Completed OrderBook Entities:**
+- ✅ BorrowOrderCancelled
+- ✅ BorrowOrderPlaced  
+- ✅ OrderCanceled
+- ✅ OrderInserted
+- ✅ OrderMatched
+- ✅ OwnershipTransferStarted
+- ✅ OwnershipTransferred
+- ✅ Paused
+- ✅ Unpaused
+- ⏳ PoolWhitelisted (complex business logic - implement separately)
+
 #### Entity Creation Pattern
 
 ```typescript

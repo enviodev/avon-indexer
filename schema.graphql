@@ -11,7 +11,6 @@ enum ActionType {
   LIQUIDATE
 }
 
-# to-do
 type BorrowOrderCancelled {
   id: ID!
   borrower: String!
@@ -23,7 +22,6 @@ type BorrowOrderCancelled {
   transactionHash: String!
 }
 
-# to-do
 type BorrowOrderPlaced {
   id: ID!
   borrower: String!
@@ -36,7 +34,6 @@ type BorrowOrderPlaced {
   transactionHash: String!
 }
 
-# to-do
 type OrderCanceled {
   id: ID!
   isLender: Boolean!
@@ -49,7 +46,6 @@ type OrderCanceled {
   transactionHash: String!
 }
 
-# to-do
 type OrderInserted {
   id: ID!
   isLender: Boolean!
@@ -62,7 +58,6 @@ type OrderInserted {
   transactionHash: String!
 }
 
-# to-do
 type OrderMatched {
   id: ID!
   lender: String!
@@ -75,7 +70,6 @@ type OrderMatched {
   transactionHash: String!
 }
 
-# to-do
 type OwnershipTransferStarted {
   id: ID!
   previousOwner: String!
@@ -94,7 +88,6 @@ type OwnershipTransferred {
   transactionHash: String!
 }
 
-# to-do
 type Paused {
   id: ID!
   account: String!
@@ -128,7 +121,6 @@ type PoolManagerSet {
   transactionHash: String!
 }
 
-# to-do
 type Unpaused {
   id: ID!
   account: String!

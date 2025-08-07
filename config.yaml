@@ -26,18 +26,42 @@ networks:
     handler: src/orderbook.ts
     events:
     - event: BorrowOrderCanceled(address indexed borrower, uint256 rate, uint256 ltv, uint256 amount)
+      field_selection:
+        transaction_fields:
+          - hash
     - event: BorrowOrderPlaced(address indexed borrower, uint256 rate, uint256 ltv, uint256 amount, uint256 minAmountExpected)
+      field_selection:
+        transaction_fields:
+          - hash
     - event: OrderCanceled(bool indexed isLender, address indexed maker, uint256 rate, uint256 ltv, uint256 amount)
+      field_selection:
+        transaction_fields:
+          - hash
     - event: OrderInserted(bool indexed isLender, address indexed maker, uint256 rate, uint256 ltv, uint256 amount)
+      field_selection:
+        transaction_fields:
+          - hash
     - event: OrderMatched(address indexed lender, address indexed borrower, uint256 rate, uint256 ltv, uint256 amount)
+      field_selection:
+        transaction_fields:
+          - hash
     - event: OwnershipTransferStarted(address indexed previousOwner, address indexed newOwner)
+      field_selection:
+        transaction_fields:
+          - hash
     - event: OwnershipTransferred(address indexed previousOwner, address indexed newOwner)
       field_selection:
         transaction_fields:
           - hash
     - event: Paused(address account)
+      field_selection:
+        transaction_fields:
+          - hash
     - event: PoolWhitelisted(address indexed pool)
     - event: Unpaused(address account)
+      field_selection:
+        transaction_fields:
+          - hash
   - name: Pool
     handler: src/pool.ts
     events:
