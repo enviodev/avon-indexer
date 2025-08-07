@@ -7,23 +7,23 @@ networks:
   - name: OrderbookFactory
     address:
     - 0x80a2c002268906FEC40E6731cf33C9A9EF3e97D6
-    handler: src/EventHandlers.ts
+    handler: src/orderbookFactory.ts
     events:
     - event: OrderbookCreated(address indexed loanToken, address indexed collateralToken, address orderbook)
   - name: PoolFactory
     address:
     - 0x6fd34F78A0021F9b75ecBa672Bfd0b3475B29d5a
-    handler: src/EventHandlers.ts
+    handler: src/poolFactory.ts
     events:
     - event: PoolCreated(address indexed pool, address indexed loanToken, address indexed collateralToken)
   - name: VaultFactory
     address:
     - 0x595c417199933898d6e83968F96F5FA5faa36C1f
-    handler: src/EventHandlers.ts
+    handler: src/vaultFactory.ts
     events:
     - event: VaultCreated(address indexed vault, address indexed token, address indexed poolManager)
   - name: OrderBook
-    handler: src/EventHandlers.ts
+    handler: src/orderbook.ts
     events:
     - event: BorrowOrderCanceled(address indexed borrower, uint256 rate, uint256 ltv, uint256 amount)
     - event: BorrowOrderPlaced(address indexed borrower, uint256 rate, uint256 ltv, uint256 amount, uint256 minAmountExpected)
@@ -36,7 +36,7 @@ networks:
     - event: PoolWhitelisted(address indexed pool)
     - event: Unpaused(address account)
   - name: Pool
-    handler: src/EventHandlers.ts
+    handler: src/pool.ts
     events:
     - event: AccrueInterest(address indexed poolAddress, uint256 prevBorrowRate, uint256 interest, uint256 feeShares)
     - event: Approval(address indexed owner, address indexed spender, uint256 value)
@@ -50,7 +50,7 @@ networks:
     - event: Withdraw(address indexed sender, address indexed receiver, address indexed owner, uint256 assets, uint256 shares)
     - event: WithdrawCollateral(address indexed poolAddress, address caller, address indexed onBehalf, address indexed receiver, uint256 assets)
   - name: Vault
-    handler: src/EventHandlers.ts
+    handler: src/vault.ts
     events:
     - event: Deposit(address indexed sender, address indexed owner, uint256 assets, uint256 shares)
     - event: Transfer(address indexed from, address indexed to, uint256 value)

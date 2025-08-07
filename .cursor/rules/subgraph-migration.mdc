@@ -155,7 +155,67 @@ import {
 } from "generated";
 ```
 
-### Step 3: Reference Original Subgraph Logic
+### Step 3: Refactor File Structure to Mirror Subgraph
+
+**CREATE directory structure to match the subgraph:**
+
+```bash
+src/
+├── entities/
+│   ├── poolData.ts      (empty - for pool data handlers)
+│   ├── token.ts         (empty - for token handlers)
+│   ├── userData.ts      (empty - for user data handlers)
+│   └── vault.ts         (empty - for vault handlers)
+├── intervals/
+│   ├── poolDayDatas.ts  (empty - for pool day data)
+│   ├── poolHourDatas.ts (empty - for pool hour data)
+│   ├── userDayDatas.ts  (empty - for user day data)
+│   └── userHourDatas.ts (empty - for user hour data)
+├── utils/
+│   ├── ConstantObjects.ts (empty - for constant objects)
+│   └── constants.ts       (empty - for constants)
+```
+
+**MOVE handlers from EventHandlers.ts to contract-specific files:**
+
+```typescript
+// OLD: Single EventHandlers.ts file
+// src/EventHandlers.ts - All handlers in one file
+
+// NEW: Separate files by contract
+// src/orderbook.ts - OrderBook contract handlers
+// src/orderbookFactory.ts - OrderbookFactory contract handlers
+// src/pool.ts - Pool contract handlers
+// src/poolFactory.ts - PoolFactory contract handlers
+// src/vault.ts - Vault contract handlers
+// src/vaultFactory.ts - VaultFactory contract handlers
+```
+
+**UPDATE config.yaml to point to specific handler files:**
+
+```yaml
+# OLD: Single handler file
+- name: OrderBook
+  handler: src/EventHandlers.ts
+
+# NEW: Contract-specific handler files
+- name: OrderBook
+  handler: src/orderbook.ts
+- name: Pool
+  handler: src/pool.ts
+- name: PoolFactory
+  handler: src/poolFactory.ts
+- name: Vault
+  handler: src/vault.ts
+- name: VaultFactory
+  handler: src/vaultFactory.ts
+- name: OrderbookFactory
+  handler: src/orderbookFactory.ts
+```
+
+**REMOVE the original EventHandlers.ts file** after moving all handlers.
+
+### Step 4: Reference Original Subgraph Logic
 
 For each handler, examine the corresponding subgraph file:
 
@@ -166,7 +226,7 @@ For each handler, examine the corresponding subgraph file:
 - `orderbook-subgraph/src/vault.ts` → Vault handlers
 - `orderbook-subgraph/src/vaultFactory.ts` → VaultFactory handlers
 
-### Step 4: Implement Migration Patterns
+### Step 5: Implement Migration Patterns
 
 #### Entity Creation Pattern
 
@@ -382,9 +442,17 @@ When using transaction-level data, explicitly define field selection:
 3. ✅ Convert entity creation pattern
 4. ✅ Update timestamp handling (BigInt)
 5. ✅ Use proper ID generation
-6. ✅ Implement entity relationships with \_id fields
-7. ✅ Add proper error handling
-8. ✅ Test with `pnpm tsc --noEmit`
+6. ✅ Add proper error handling
+7. ✅ Test with `pnpm tsc --noEmit`
+
+### For File Structure:
+
+1. ✅ Create directory structure (entities/, intervals/, utils/)
+2. ✅ Move handlers to contract-specific files
+3. ✅ Update config.yaml handler paths
+4. ✅ Remove original EventHandlers.ts file
+5. ✅ Run `pnpm codegen` after changes
+6. ✅ Validate with `pnpm tsc --noEmit`
 
 ### For Schema Updates:
 

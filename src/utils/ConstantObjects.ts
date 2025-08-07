@@ -1,0 +1,1 @@
+// Constant objects utilities 
