@@ -265,7 +265,7 @@ type Transfer {
 # to-do
 type Withdraw {
   id: ID!
-  Pool_id: String!
+  poolId: String!
   caller: String!
   receiver: String!
   assets: BigInt!

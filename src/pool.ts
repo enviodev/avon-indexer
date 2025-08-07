@@ -6,6 +6,8 @@ import {
   Approval,
   FlashLoan,
   Liquidate,
+  Withdraw,
+  Withdraw1,
 } from "generated";
 
 // Reference: orderbook-subgraph/src/pool.ts
@@ -98,6 +100,23 @@ Pool.Transfer.handler(async ({ event, context }) => {
 Pool.Withdraw.handler(async ({ event, context }) => {
   // TODO: Implement business logic from subgraph
   // Reference: orderbook-subgraph/src/pool.ts - handleWithdraw
+});
+
+// Reference: orderbook-subgraph/src/pool.ts - handleWithdrawPool (new Withdraw event with poolAddress)
+Pool.WithdrawPool.handler(async ({ event, context }) => {
+  const entity: Withdraw1 = {
+    id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
+    sender: event.params.caller,
+    receiver: event.params.receiver,
+    owner: event.params.receiver,
+    assets: event.params.assets,
+    shares: event.params.shares,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  };
+
+  context.Withdraw1.set(entity);
 });
 
 // Reference: orderbook-subgraph/src/pool.ts

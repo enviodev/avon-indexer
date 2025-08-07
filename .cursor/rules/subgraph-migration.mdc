@@ -1326,3 +1326,76 @@ const newEntity: Entity = {
 context.Entity.set(newEntity);
 ```
 
+### 20. Multiple Events with Same Name
+
+**When a contract has multiple events with the same name but different signatures, use aliases:**
+
+```yaml
+# config.yaml
+- name: Contract
+  handler: src/contract.ts
+  events:
+    # First event with default name
+    - event: EventName(address indexed param1, address indexed param2, uint256 value)
+      field_selection:
+        transaction_fields:
+          - hash
+    # Second event with same name but different signature - use alias
+    - event: EventName(address indexed param3, address param4, uint256 value)
+      name: EventNameAlias
+      field_selection:
+        transaction_fields:
+          - hash
+```
+
+**Handler Implementation:**
+```typescript
+// First event handler
+Contract.EventName.handler(async ({ event, context }) => {
+  const entity: EventEntity = {
+    id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
+    param1: event.params.param1,
+    param2: event.params.param2,
+    value: event.params.value,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  };
+  context.EventEntity.set(entity);
+});
+
+// Second event handler with alias
+Contract.EventNameAlias.handler(async ({ event, context }) => {
+  const entity: EventEntity = {
+    id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
+    param3: event.params.param3,
+    param4: event.params.param4,
+    value: event.params.value,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  };
+  context.EventEntity.set(entity);
+});
+```
+
+**Key Points:**
+1. **Use `name` field** in config.yaml to create aliases for events with same name
+2. **Different signatures** require different handlers
+3. **Same entity type** can be used if the data structure is similar
+4. **Field selection** must be specified for each event that needs transaction data
+5. **Regenerate types** after adding new events with `pnpm codegen`
+
+**Example: Pool Withdraw Events**
+```yaml
+# First Withdraw event (standard ERC4626)
+- event: Withdraw(address indexed sender, address indexed receiver, address indexed owner, uint256 assets, uint256 shares)
+
+# Second Withdraw event (pool-specific)
+- event: Withdraw(address indexed poolAddress, address caller, address indexed receiver, uint256 assets, uint256 shares)
+  name: WithdrawPool
+  field_selection:
+    transaction_fields:
+      - hash
+```
+

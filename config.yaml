@@ -90,6 +90,11 @@ networks:
     - event: Repay(address indexed poolAddress, address indexed caller, address indexed onBehalf, uint256 assets, uint256 shares)
     - event: Transfer(address indexed from, address indexed to, uint256 value)
     - event: Withdraw(address indexed sender, address indexed receiver, address indexed owner, uint256 assets, uint256 shares)
+    - event: Withdraw(address indexed poolAddress, address caller, address indexed receiver, uint256 assets, uint256 shares)
+      name: WithdrawPool
+      field_selection:
+        transaction_fields:
+          - hash
     - event: WithdrawCollateral(address indexed poolAddress, address caller, address indexed onBehalf, address indexed receiver, uint256 assets)
   - name: Vault
     handler: src/vault.ts
