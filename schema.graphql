@@ -700,7 +700,6 @@ type UserAction {
   isVault: Boolean
 }
 
-# to-do
 type OrderbookCreated {
   id: ID!
   loanToken: String!

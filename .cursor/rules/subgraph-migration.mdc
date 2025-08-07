@@ -199,7 +199,7 @@ Contract.EventCreated.contractRegister(({ event, context }) => {
 });
 ```
 
-## Contract State Fetching Migration
+pnpm dev## Contract State Fetching Migration
 
 ### Overview
 
@@ -1177,5 +1177,152 @@ dotenv.config();
 networks:
 - id: 6342  # This determines which network to use
   start_block: 0
+```
+
+### 17. Factory Contract Migration Pattern
+
+**Implement factory contract handlers with address filtering and entity creation:**
+
+```typescript
+// Reference: original-subgraph/src/factory.ts - handleContractCreated
+Factory.ContractCreated.handler(async ({ event, context }) => {
+  try {
+    // Skip specific addresses (from original subgraph logic)
+    const contractAddress = event.params.contract.toLowerCase();
+    if (
+      contractAddress === "0xSpecificAddress1" ||
+      contractAddress === "0xSpecificAddress2"
+    ) {
+      context.log.info(`Skip datasource from wrong param ${contractAddress}`);
+      return;
+    }
+
+    context.log.info(`handleContractCreated ${contractAddress}`);
+
+    // Create event entity with correct ID (from original subgraph)
+    const entity: ContractCreated = {
+      id: event.params.contract, // Use contract address as ID like original subgraph
+      param1: event.params.param1,
+      param2: event.params.param2,
+      contract: event.params.contract,
+      blockNumber: BigInt(event.block.number),
+      blockTimestamp: BigInt(event.block.timestamp),
+      transactionHash: event.transaction.hash,
+    };
+
+    context.ContractCreated.set(entity);
+
+    // Get or create related entities (example: tokens)
+    let relatedEntity = await context.RelatedEntity.get(event.params.relatedParam);
+    if (!relatedEntity) {
+      try {
+        const metadata = await getEntityMetadata(event.params.relatedParam);
+        
+        context.log.info(
+          `CONTRACT CREATED :: FOR RELATED ENTITY ADDRESS:${event.params.relatedParam} NAME:${metadata.name} SYMBOL:${metadata.symbol}`
+        );
+
+        const newRelatedEntity: RelatedEntity = {
+          id: event.params.relatedParam,
+          name: metadata.name,
+          symbol: metadata.symbol,
+          // ... other fields
+          blockNumber: BigInt(event.block.number),
+          blockTimestamp: BigInt(event.block.timestamp),
+          transactionHash: event.transaction.hash,
+        };
+        context.RelatedEntity.set(newRelatedEntity);
+      } catch (error) {
+        context.log.error(`Error fetching metadata for ${event.params.relatedParam}: ${error}`);
+      }
+    }
+
+  } catch (error) {
+    context.log.error(`Error in ContractCreated handler: ${error}`);
+    // Don't throw - let the indexer continue
+  }
+});
+```
+
+**Key Features:**
+1. **Address Filtering**: Skip specific addresses from original subgraph logic
+2. **Contract Registration**: Register new contracts using `context.addContract()`
+3. **Correct Entity ID**: Use event parameter as ID (matches original subgraph pattern)
+4. **Immutable Object Handling**: Create new objects instead of modifying read-only ones
+5. **Metadata Fetching**: Fetch contract state for related entities
+6. **Conditional Entity Creation**: Only create entities if they don't exist (optimization)
+7. **Proper Logging**: Use `context.log.info` and `context.log.error` instead of `console.log`
+8. **Error Handling**: Proper error handling for RPC calls
+
+**Important Patterns:**
+- **Entity ID**: Use `event.params.contract` instead of `${event.chainId}_${event.transaction.hash}_${event.logIndex}`
+- **Immutable Objects**: Create new objects (`newRelatedEntity`) instead of modifying read-only ones
+- **Logging**: Use `context.log.info` and `context.log.error` for proper Envio logging
+
+**Configuration Requirements:**
+```yaml
+# config.yaml
+- event: ContractCreated(address indexed param1, address indexed param2, address contract)
+  field_selection:
+    transaction_fields:
+      - hash
+```
+
+### 18. Logging Best Practices
+
+**Use Envio's logging system instead of console.log:**
+
+```typescript
+// ❌ AVOID - Console logging
+console.log(`Processing event: ${event.params.value}`);
+console.error(`Error: ${error}`);
+
+// ✅ USE - Envio logging
+context.log.info(`Processing event: ${event.params.value}`);
+context.log.error(`Error: ${error}`);
+context.log.warn(`Warning: ${warning}`);
+context.log.debug(`Debug info: ${debugInfo}`);
+```
+
+**Available Logging Methods:**
+- `context.log.info()` - General information
+- `context.log.error()` - Error messages
+- `context.log.warn()` - Warning messages
+- `context.log.debug()` - Debug information
+
+### 19. Immutable Object Handling
+
+**When working with entities from context, create new objects:**
+
+```typescript
+// ❌ AVOID - Modifying read-only objects
+let entity = await context.Entity.get(id);
+if (entity) {
+  entity.field = newValue; // This will fail - object is immutable
+  context.Entity.set(entity);
+}
+
+// ✅ USE - Create new objects with spread operator
+let entity = await context.Entity.get(id);
+if (entity) {
+  const updatedEntity: Entity = {
+    ...entity, // Spread existing properties
+    field: newValue, // Add new/modified properties
+    updatedAt: BigInt(event.block.timestamp),
+  };
+  context.Entity.set(updatedEntity);
+}
+```
+
+**For New Entity Creation:**
+```typescript
+// ✅ CORRECT - Create new entity object
+const newEntity: Entity = {
+  id: event.params.id,
+  field1: event.params.field1,
+  field2: event.params.field2,
+  // ... other fields
+};
+context.Entity.set(newEntity);
 ```
 

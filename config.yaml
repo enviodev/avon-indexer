@@ -10,6 +10,9 @@ networks:
     handler: src/orderbookFactory.ts
     events:
     - event: OrderbookCreated(address indexed loanToken, address indexed collateralToken, address orderbook)
+      field_selection:
+        transaction_fields:
+          - hash
   - name: PoolFactory
     address:
     - 0x6fd34F78A0021F9b75ecBa672Bfd0b3475B29d5a
