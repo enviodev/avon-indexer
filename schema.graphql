@@ -1,210 +1,394 @@
-type OrderBook_BorrowOrderCanceled {
+enum ActionType {
+  DEPOSIT
+  WITHDRAW
+  TRANSFER
+  ADD_COLLATERAL
+  REPAY
+  REMOVE_COLLATERAL
+  BORROW
+  CREATE_ORDER
+  CANCEL_ORDER
+  LIQUIDATE
+}
+
+type Token {
   id: ID!
-  borrower: String!
-  rate: BigInt!
+  name: String!
+  symbol: String!
+  decimals: BigInt!
+  rate: BigDecimal!
+  dataFeedId: String
+  updatedAt: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+  address: String!
+}
+
+type TokenHourData {
+  id: ID!
+  token_id: String!
+  rate: BigDecimal!
+  updatedAt: BigInt!
+  prevHourData_id: String
+  hourId: BigInt!
+}
+
+type TokenDayData {
+  id: ID!
+  token_id: String!
+  rate: BigDecimal!
+  updatedAt: BigInt!
+  prevDayData_id: String
+  dayId: BigInt!
+}
+
+type PoolDataEntity {
+  id: ID!
+  totalSupplyAssets: BigInt!
+  totalSupplyShares: BigInt!
+  totalBorrowAssets: BigInt!
+  totalBorrowShares: BigInt!
+  timestamp: BigInt!
+  lastUpdate: BigInt!
+  fee: BigInt!
+  utilization: BigDecimal!
+  ir: BigInt!
+  depositApy: BigInt!
   ltv: BigInt!
-  amount: BigInt!
+  convertToAssetsMultiplier: BigDecimal!
+  convertBorrowAssetsMultiplier: BigDecimal!
+  totalDepositsVolume: BigInt!
+  totalWithdrawalsVolume: BigInt!
+  totalBorrowVolume: BigInt!
+  totalRepayVolume: BigInt!
+  loanToken_id: String!
+  collateralToken_id: String!
+  orderbook_id: String
+  oracle: String!
+  isWhitelisted: Boolean
+  poolFactory_id: String!
 }
 
-type OrderBook_BorrowOrderPlaced {
+type PoolDataHourEntity {
   id: ID!
-  borrower: String!
-  rate: BigInt!
+  totalSupplyAssets: BigInt!
+  totalSupplyShares: BigInt!
+  totalBorrowAssets: BigInt!
+  totalBorrowShares: BigInt!
+  lastUpdate: BigInt!
+  fee: BigInt!
+  utilization: BigDecimal!
+  ir: BigInt!
+  depositApy: BigInt!
   ltv: BigInt!
-  amount: BigInt!
-  minAmountExpected: BigInt!
+  convertToAssetsMultiplier: BigDecimal!
+  convertBorrowAssetsMultiplier: BigDecimal!
+  timestamp: BigInt!
+  lastupdate: BigInt!
+  poolAddress: String!
+  prevHourData_id: String
+  hourId: BigInt!
+  totalDepositsVolume: BigInt!
+  totalWithdrawalsVolume: BigInt!
+  totalBorrowVolume: BigInt!
+  totalRepayVolume: BigInt!
+  pool_id: String!
+  collateralTokenHourData_id: String
+  loanTokenHourData_id: String
 }
 
-type OrderBook_OrderCanceled {
+type PoolDataDayEntity {
   id: ID!
-  isLender: Boolean!
-  maker: String!
-  rate: BigInt!
+  totalSupplyAssets: BigInt!
+  totalSupplyShares: BigInt!
+  totalBorrowAssets: BigInt!
+  totalBorrowShares: BigInt!
+  lastUpdate: BigInt!
+  fee: BigInt!
+  utilization: BigDecimal!
+  ir: BigInt!
+  depositApy: BigInt!
   ltv: BigInt!
-  amount: BigInt!
+  convertToAssetsMultiplier: BigDecimal!
+  convertBorrowAssetsMultiplier: BigDecimal!
+  timestamp: BigInt!
+  lastupdate: BigInt!
+  poolAddress: String!
+  prevDayData_id: String
+  dayId: BigInt!
+  totalDepositsVolume: BigInt!
+  totalWithdrawalsVolume: BigInt!
+  totalBorrowVolume: BigInt!
+  totalRepayVolume: BigInt!
+  pool_id: String!
+  collateralTokenDayData_id: String
+  loanTokenDayData_id: String
 }
 
-type OrderBook_OrderInserted {
+type UserDataEntity {
   id: ID!
-  isLender: Boolean!
-  maker: String!
-  rate: BigInt!
-  ltv: BigInt!
-  amount: BigInt!
+  timestamp: BigInt!
+  lastUpdate: BigInt!
+  totalDepositsVolume: BigInt!
+  totalWithdrawalsVolume: BigInt!
+  totalBorrowVolume: BigInt!
+  totalRepayVolume: BigInt!
+  totalSupplyCollateralVolume: BigInt!
+  totalWithdrawCollateralVolume: BigInt!
 }
 
-type OrderBook_OrderMatched {
+type UserDataHourEntity {
   id: ID!
-  lender: String!
-  borrower: String!
-  rate: BigInt!
-  ltv: BigInt!
-  amount: BigInt!
+  timestamp: BigInt!
+  lastUpdate: BigInt!
+  totalDepositsVolume: BigInt!
+  totalWithdrawalsVolume: BigInt!
+  totalBorrowVolume: BigInt!
+  totalRepayVolume: BigInt!
+  totalSupplyCollateralVolume: BigInt!
+  totalWithdrawCollateralVolume: BigInt!
+  user_id: String!
+  hourId: BigInt!
+  prev_id: String
 }
 
-type OrderBook_OwnershipTransferStarted {
+type UserDataDayEntity {
   id: ID!
-  previousOwner: String!
-  newOwner: String!
+  timestamp: BigInt!
+  lastUpdate: BigInt!
+  totalDepositsVolume: BigInt!
+  totalWithdrawalsVolume: BigInt!
+  totalBorrowVolume: BigInt!
+  totalRepayVolume: BigInt!
+  totalSupplyCollateralVolume: BigInt!
+  totalWithdrawCollateralVolume: BigInt!
+  user_id: String!
+  dayId: BigInt!
+  prev_id: String
 }
 
-type OrderBook_OwnershipTransferred {
+type UserDataPoolEntity {
   id: ID!
-  previousOwner: String!
-  newOwner: String!
+  timestamp: BigInt!
+  lastUpdate: BigInt!
+  totalDepositsVolume: BigInt!
+  totalWithdrawalsVolume: BigInt!
+  totalBorrowVolume: BigInt!
+  totalRepayVolume: BigInt!
+  totalSupplyCollateralVolume: BigInt!
+  totalWithdrawCollateralVolume: BigInt!
+  depositedAssets: BigDecimal!
+  depositedShares: BigInt!
+  borrowedAssets: BigDecimal!
+  borrowedShares: BigInt!
+  collateralAssets: BigDecimal!
+  user_id: String!
+  pool_id: String!
 }
 
-type OrderBook_Paused {
+type UserDataPoolHourEntity {
   id: ID!
-  account: String!
+  timestamp: BigInt!
+  lastUpdate: BigInt!
+  totalDepositsVolume: BigInt!
+  totalWithdrawalsVolume: BigInt!
+  totalBorrowVolume: BigInt!
+  totalRepayVolume: BigInt!
+  totalSupplyCollateralVolume: BigInt!
+  totalWithdrawCollateralVolume: BigInt!
+  user_id: String!
+  hourId: BigInt!
+  prev_id: String
+  depositedAssets: BigDecimal!
+  depositedShares: BigInt!
+  borrowedAssets: BigDecimal!
+  borrowedShares: BigInt!
+  userDataPool_id: String!
+  collateralAssets: BigDecimal!
 }
 
-type OrderBook_PoolWhitelisted {
+type UserDataPoolDayEntity {
   id: ID!
-  pool: String!
+  timestamp: BigInt!
+  lastUpdate: BigInt!
+  totalDepositsVolume: BigInt!
+  totalWithdrawalsVolume: BigInt!
+  totalBorrowVolume: BigInt!
+  totalRepayVolume: BigInt!
+  totalSupplyCollateralVolume: BigInt!
+  totalWithdrawCollateralVolume: BigInt!
+  user_id: String!
+  dayId: BigInt!
+  prev_id: String
+  depositedAssets: BigDecimal!
+  depositedShares: BigInt!
+  borrowedAssets: BigDecimal!
+  collateralAssets: BigDecimal!
+  borrowedShares: BigInt!
+  userDataPool_id: String!
 }
 
-type OrderBook_Unpaused {
+type PoolFactory {
   id: ID!
-  account: String!
+  timestamp: BigInt!
+  lastUpdate: BigInt!
+  totalPools: BigInt!
+  totalWhitelistedPools: BigInt!
 }
 
-type OrderbookFactory_OrderbookCreated {
+type VaultFactory {
+  id: ID!
+  timestamp: BigInt!
+  lastUpdate: BigInt!
+  totalVaults: BigInt!
+}
+
+type VaultDataEntity {
+  id: ID!
+  manager: String!
+  timestamp: BigInt!
+  lastUpdate: BigInt!
+  fee: BigInt!
+  depositApy: BigInt!
+  convertToAssetsMultiplier: BigDecimal!
+  totalDepositsVolume: BigInt!
+  totalWithdrawalsVolume: BigInt!
+  totalAssets: BigInt!
+  totalShares: BigInt!
+  token_id: String!
+  vaultFactory_id: String!
+  name: String
+  symbol: String
+  decimals: BigInt!
+}
+
+type VaultDataDayEntity {
+  id: ID!
+  dayId: BigInt!
+  timestamp: BigInt!
+  depositApy: BigInt!
+  convertToAssetsMultiplier: BigDecimal!
+  totalDepositsVolume: BigInt!
+  totalWithdrawalsVolume: BigInt!
+  totalAssets: BigInt!
+  totalShares: BigInt!
+  token_id: String!
+  vault_id: String!
+  prevDayData_id: String
+  updatedAt: BigInt!
+  tokenDayData_id: String
+}
+
+type VaultDataHourEntity {
+  id: ID!
+  hourId: BigInt!
+  timestamp: BigInt!
+  depositApy: BigInt!
+  convertToAssetsMultiplier: BigDecimal!
+  totalDepositsVolume: BigInt!
+  totalWithdrawalsVolume: BigInt!
+  totalAssets: BigInt!
+  totalShares: BigInt!
+  token_id: String!
+  vault_id: String!
+  prevHourData_id: String
+  updatedAt: BigInt!
+  tokenHourData_id: String
+}
+
+type UserDataVaultEntity {
+  id: ID!
+  timestamp: BigInt!
+  totalDepositsVolume: BigInt!
+  totalWithdrawalsVolume: BigInt!
+  depositedAssets: BigInt!
+  depositedShares: BigInt!
+  user_id: String!
+  vault_id: String!
+}
+
+type UserDataVaultDayEntity {
+  id: ID!
+  timestamp: BigInt!
+  lastUpdate: BigInt!
+  totalDepositsVolume: BigInt!
+  totalWithdrawalsVolume: BigInt!
+  user_id: String!
+  dayId: BigInt!
+  prev_id: String
+  depositedAssets: BigInt!
+  depositedShares: BigInt!
+  userDataVault_id: String!
+}
+
+type UserDataVaultHourEntity {
+  id: ID!
+  timestamp: BigInt!
+  lastUpdate: BigInt!
+  totalDepositsVolume: BigInt!
+  totalWithdrawalsVolume: BigInt!
+  user_id: String!
+  hourId: BigInt!
+  prev_id: String
+  depositedAssets: BigInt!
+  depositedShares: BigInt!
+  userDataVault_id: String!
+}
+
+type PoolAction {
+  id: ID!
+  poolAddress: String!
+  pool_id: String!
+  caller: String!
+  user_id: String!
+  receiver: String!
+  assets: BigInt!
+  shares: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+  action: ActionType!
+  token_id: String
+  isVault: Boolean
+}
+
+type UserAction {
+  id: ID!
+  poolAddress: String
+  vaultAddress: String
+  pool_id: String
+  vault_id: String
+  caller: String!
+  user_id: String!
+  receiver: String!
+  assets: BigInt!
+  shares: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+  action: ActionType!
+  token_id: String
+  isVault: Boolean
+}
+
+type OrderbookCreated {
   id: ID!
   loanToken: String!
   collateralToken: String!
   orderbook: String!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
 }
 
-type Pool_AccrueInterest {
+type ValueUpdate {
   id: ID!
-  poolAddress: String!
-  prevBorrowRate: BigInt!
-  interest: BigInt!
-  feeShares: BigInt!
-}
-
-type Pool_Approval {
-  id: ID!
-  owner: String!
-  spender: String!
   value: BigInt!
-}
-
-type Pool_Borrow {
-  id: ID!
-  poolAddress: String!
-  caller: String!
-  onBehalf: String!
-  receiver: String!
-  assets: BigInt!
-  shares: BigInt!
-}
-
-type Pool_Deposit {
-  id: ID!
-  sender: String!
-  owner: String!
-  assets: BigInt!
-  shares: BigInt!
-}
-
-type Pool_DepositCollateral {
-  id: ID!
-  poolAddress: String!
-  caller: String!
-  onBehalf: String!
-  assets: BigInt!
-}
-
-type Pool_FlashLoan {
-  id: ID!
-  caller: String!
-  token: String!
-  assets: BigInt!
-}
-
-type Pool_Liquidate {
-  id: ID!
-  poolAddress: String!
-  caller: String!
-  borrower: String!
-  repaidAssets: BigInt!
-  repaidShares: BigInt!
-  seizedAssets: BigInt!
-  badDebtAssets: BigInt!
-  badDebtShares: BigInt!
-}
-
-type Pool_Repay {
-  id: ID!
-  poolAddress: String!
-  caller: String!
-  onBehalf: String!
-  assets: BigInt!
-  shares: BigInt!
-}
-
-type Pool_Transfer {
-  id: ID!
-  from: String!
-  to: String!
-  value: BigInt!
-}
-
-type Pool_Withdraw {
-  id: ID!
-  sender: String!
-  receiver: String!
-  owner: String!
-  assets: BigInt!
-  shares: BigInt!
-}
-
-type Pool_WithdrawCollateral {
-  id: ID!
-  poolAddress: String!
-  caller: String!
-  onBehalf: String!
-  receiver: String!
-  assets: BigInt!
-}
-
-type PoolFactory_PoolCreated {
-  id: ID!
-  pool: String!
-  loanToken: String!
-  collateralToken: String!
-}
-
-type Vault_Deposit {
-  id: ID!
-  sender: String!
-  owner: String!
-  assets: BigInt!
-  shares: BigInt!
-}
-
-type Vault_Transfer {
-  id: ID!
-  from: String!
-  to: String!
-  value: BigInt!
-}
-
-type Vault_Withdraw {
-  id: ID!
-  sender: String!
-  receiver: String!
-  owner: String!
-  assets: BigInt!
-  shares: BigInt!
-}
-
-type VaultFactory_VaultCreated {
-  id: ID!
-  vault: String!
-  token: String!
-  poolManager: String!
+  dataFeedId: String!
+  updatedAt: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
 }
 
