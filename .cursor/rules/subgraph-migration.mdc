@@ -1,7 +1,7 @@
 
 ## Objective
 
-Migrate from TheGraph subgraph indexer to Envio indexer by clearing boilerplate code, migrating the schema, and implementing proper business logic.
+Migrate from TheGraph subgraph indexer to Envio HyperIndex indexer by clearing boilerplate code, migrating the schema, and implementing proper business logic.
 
 ## Context to Load
 
@@ -35,125 +35,55 @@ When working with EventHandlers.ts, clear all boilerplate logic and start fresh:
 
 ```typescript
 // CLEAR THIS BOILERPLATE CODE:
-OrderBook.BorrowOrderCanceled.handler(async ({ event, context }) => {
-  const entity: OrderBook_BorrowOrderCanceled = {
+Contract.EventName.handler(async ({ event, context }) => {
+  const entity: EventEntity = {
     id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    borrower: event.params.borrower,
-    rate: event.params.rate,
-    ltv: event.params.ltv,
-    amount: event.params.amount,
+    field1: event.params.field1,
+    field2: event.params.field2,
+    // ... other fields
   };
 
-  context.OrderBook_BorrowOrderCanceled.set(entity);
+  context.EventEntity.set(entity);
 });
 
 // REPLACE WITH EMPTY HANDLERS:
-OrderBook.BorrowOrderCanceled.handler(async ({ event, context }) => {
+Contract.EventName.handler(async ({ event, context }) => {
   // TODO: Implement business logic from subgraph
-  // Reference: orderbook-subgraph/src/orderbook.ts
+  // Reference: original-subgraph/src/contract.ts
 });
 ```
 
 ### Step 2: Migrate Schema from Raw Events to Business Logic
 
-**REMOVE all raw event entities from schema.graphql:**
+**CONVERT raw event entities from TheGraph to Envio format:**
 
 ```graphql
-// REMOVE THESE RAW EVENT ENTITIES:
-type OrderBook_BorrowOrderCanceled {
-  id: ID!
-  borrower: String!
-  rate: BigInt!
-  ltv: BigInt!
-  amount: BigInt!
+# OLD (TheGraph):
+type EventEntity @entity(immutable: true) {
+  id: Bytes!
+  field1: Bytes!
+  field2: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
 }
 
-type Pool_Deposit {
+# NEW (Envio):
+type EventEntity {
   id: ID!
-  sender: String!
-  owner: String!
-  assets: BigInt!
-  shares: BigInt!
-}
-```
-
-**ADD business logic entities from the original subgraph:**
-
-```graphql
-// ADD THESE BUSINESS LOGIC ENTITIES:
-type Token {
-  id: ID!
-  name: String!
-  symbol: String!
-  decimals: BigInt!
-  rate: BigDecimal!
-  dataFeedId: String
-  updatedAt: BigInt!
+  field1: String!
+  field2: BigInt!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: String!
-  address: String!
-}
-
-type PoolDataEntity {
-  id: ID!
-  totalSupplyAssets: BigInt!
-  totalSupplyShares: BigInt!
-  totalBorrowAssets: BigInt!
-  totalBorrowShares: BigInt!
-  timestamp: BigInt!
-  lastUpdate: BigInt!
-  fee: BigInt!
-  utilization: BigDecimal!
-  ir: BigInt!
-  depositApy: BigInt!
-  ltv: BigInt!
-  convertToAssetsMultiplier: BigDecimal!
-  convertBorrowAssetsMultiplier: BigDecimal!
-  totalDepositsVolume: BigInt!
-  totalWithdrawalsVolume: BigInt!
-  totalBorrowVolume: BigInt!
-  totalRepayVolume: BigInt!
-  loanToken_id: String!
-  collateralToken_id: String!
-  orderbook_id: String
-  oracle: String!
-  isWhitelisted: Boolean
-  poolFactory_id: String!
-}
-
-type UserDataEntity {
-  id: ID!
-  timestamp: BigInt!
-  lastUpdate: BigInt!
-  totalDepositsVolume: BigInt!
-  totalWithdrawalsVolume: BigInt!
-  totalBorrowVolume: BigInt!
-  totalRepayVolume: BigInt!
-  totalSupplyCollateralVolume: BigInt!
-  totalWithdrawCollateralVolume: BigInt!
 }
 ```
 
-**UPDATE EventHandlers.ts imports:**
-
-```typescript
-// REMOVE raw event entity imports:
-import {
-  OrderBook_BorrowOrderCanceled,  // ❌ Remove
-  Pool_Deposit,                   // ❌ Remove
-  // ... other raw event entities
-} from "generated";
-
-// KEEP only contract imports:
-import {
-  OrderBook,
-  Pool,
-  PoolFactory,
-  Vault,
-  VaultFactory,
-} from "generated";
-```
+**KEEP all entities from the original subgraph** but convert them to Envio format:
+- Remove `@entity` decorators
+- Change `Bytes!` to `String!`
+- Change `ID!` to `ID!` (keep as is)
+- Keep all business logic entities
 
 ### Step 3: Refactor File Structure to Mirror Subgraph
 
@@ -162,18 +92,15 @@ import {
 ```bash
 src/
 ├── entities/
-│   ├── poolData.ts      (empty - for pool data handlers)
-│   ├── token.ts         (empty - for token handlers)
-│   ├── userData.ts      (empty - for user data handlers)
-│   └── vault.ts         (empty - for vault handlers)
+│   ├── entity1.ts      (empty - for entity handlers)
+│   ├── entity2.ts      (empty - for entity handlers)
+│   └── entity3.ts      (empty - for entity handlers)
 ├── intervals/
-│   ├── poolDayDatas.ts  (empty - for pool day data)
-│   ├── poolHourDatas.ts (empty - for pool hour data)
-│   ├── userDayDatas.ts  (empty - for user day data)
-│   └── userHourDatas.ts (empty - for user hour data)
+│   ├── hourData.ts     (empty - for time-based data)
+│   └── dayData.ts      (empty - for time-based data)
 ├── utils/
-│   ├── ConstantObjects.ts (empty - for constant objects)
-│   └── constants.ts       (empty - for constants)
+│   ├── constants.ts    (empty - for constants)
+│   └── helpers.ts      (empty - for helper functions)
 ```
 
 **MOVE handlers from EventHandlers.ts to contract-specific files:**
@@ -183,34 +110,25 @@ src/
 // src/EventHandlers.ts - All handlers in one file
 
 // NEW: Separate files by contract
-// src/orderbook.ts - OrderBook contract handlers
-// src/orderbookFactory.ts - OrderbookFactory contract handlers
-// src/pool.ts - Pool contract handlers
-// src/poolFactory.ts - PoolFactory contract handlers
-// src/vault.ts - Vault contract handlers
-// src/vaultFactory.ts - VaultFactory contract handlers
+// src/contract1.ts - Contract1 handlers
+// src/contract2.ts - Contract2 handlers
+// src/contract3.ts - Contract3 handlers
 ```
 
 **UPDATE config.yaml to point to specific handler files:**
 
 ```yaml
 # OLD: Single handler file
-- name: OrderBook
+- name: Contract1
   handler: src/EventHandlers.ts
 
 # NEW: Contract-specific handler files
-- name: OrderBook
-  handler: src/orderbook.ts
-- name: Pool
-  handler: src/pool.ts
-- name: PoolFactory
-  handler: src/poolFactory.ts
-- name: Vault
-  handler: src/vault.ts
-- name: VaultFactory
-  handler: src/vaultFactory.ts
-- name: OrderbookFactory
-  handler: src/orderbookFactory.ts
+- name: Contract1
+  handler: src/contract1.ts
+- name: Contract2
+  handler: src/contract2.ts
+- name: Contract3
+  handler: src/contract3.ts
 ```
 
 **REMOVE the original EventHandlers.ts file** after moving all handlers.
@@ -219,89 +137,32 @@ src/
 
 For each handler, examine the corresponding subgraph file:
 
-- `orderbook-subgraph/src/orderbook.ts` → OrderBook handlers
-- `orderbook-subgraph/src/orderbookFactory.ts` → OrderbookFactory handlers  
-- `orderbook-subgraph/src/pool.ts` → Pool handlers
-- `orderbook-subgraph/src/poolFactory.ts` → PoolFactory handlers
-- `orderbook-subgraph/src/vault.ts` → Vault handlers
-- `orderbook-subgraph/src/vaultFactory.ts` → VaultFactory handlers
+- `original-subgraph/src/contract1.ts` → Contract1 handlers
+- `original-subgraph/src/contract2.ts` → Contract2 handlers  
+- `original-subgraph/src/contract3.ts` → Contract3 handlers
 
 ### Step 5: Implement Migration Patterns
-
-### Step 6: Incremental Entity Implementation
-
-**Start with simple entities that don't get affected by multiple handlers:**
-
-1. **Add field selection to config.yaml** for specific events that need transaction hash:
-   ```yaml
-   - event: OwnershipTransferred(address indexed previousOwner, address indexed newOwner)
-     field_selection:
-       transaction_fields:
-         - hash
-   ```
-
-2. **Implement handler logic** based on original subgraph:
-   ```typescript
-   // Reference: orderbook-subgraph/src/orderbook.ts - handleOwnershipTransferred
-   OrderBook.OwnershipTransferred.handler(async ({ event, context }) => {
-     const entity: OwnershipTransferred = {
-       id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
-       previousOwner: event.params.previousOwner,
-       newOwner: event.params.newOwner,
-       blockNumber: BigInt(event.block.number),
-       blockTimestamp: BigInt(event.block.timestamp),
-       transactionHash: event.transaction.hash,
-     };
-
-     context.OwnershipTransferred.set(entity);
-   });
-   ```
-
-3. **Remove `# to-do` comment** from schema for completed entities.
-
-4. **Validate with `pnpm codegen` and `pnpm tsc --noEmit`** after each implementation.
-
-**Batch Implementation Pattern:**
-
-For multiple similar entities, implement them all at once:
-
-1. **Add field selection for all events** that need transaction hash
-2. **Implement all handlers** following the same pattern
-3. **Remove all `# to-do` comments** for completed entities
-4. **Validate the entire batch** with codegen and TypeScript checks
-
-**Completed OrderBook Entities:**
-- ✅ BorrowOrderCancelled
-- ✅ BorrowOrderPlaced  
-- ✅ OrderCanceled
-- ✅ OrderInserted
-- ✅ OrderMatched
-- ✅ OwnershipTransferStarted
-- ✅ OwnershipTransferred
-- ✅ Paused
-- ✅ Unpaused
-- ⏳ PoolWhitelisted (complex business logic - implement separately)
 
 #### Entity Creation Pattern
 
 ```typescript
 // OLD SUBGRAPH PATTERN:
-let entity = new BorrowOrderCancelled(
+let entity = new EventEntity(
   event.transaction.hash.concatI32(event.logIndex.toI32())
 );
-entity.borrower = event.params.borrower;
+entity.field1 = event.params.field1;
 entity.save();
 
 // NEW ENVIO PATTERN:
-const entity: BorrowOrderCancelled = {
-  id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-  borrower: event.params.borrower,
-  blockNumber: event.block.number,
+const entity: EventEntity = {
+  id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
+  field1: event.params.field1,
+  blockNumber: BigInt(event.block.number),
   blockTimestamp: BigInt(event.block.timestamp),
   transactionHash: event.transaction.hash,
 };
 
-context.BorrowOrderCancelled.set(entity);
+context.EventEntity.set(entity);
 ```
 
 #### Entity Updates Pattern
@@ -330,11 +191,11 @@ if (entity) {
 
 ```typescript
 // OLD SUBGRAPH PATTERN:
-PoolTemplate.create(event.params.pool);
+ContractTemplate.create(event.params.contract);
 
 // NEW ENVIO PATTERN:
-PoolFactory.PoolCreated.contractRegister(({ event, context }) => {
-  context.addPool(event.params.pool);
+Contract.EventCreated.contractRegister(({ event, context }) => {
+  context.addContract(event.params.contract);
 });
 ```
 
@@ -344,14 +205,12 @@ PoolFactory.PoolCreated.contractRegister(({ event, context }) => {
 
 **TheGraph (OLD):**
 ```typescript
-entity.pool = event.params.pool.toHexString();
-entity.user = event.params.user.toHexString();
+entity.relatedEntity = event.params.entity.toHexString();
 ```
 
 **Envio (NEW):**
 ```typescript
-pool_id: event.params.pool;
-user_id: event.params.user;
+relatedEntity_id: event.params.entity;
 ```
 
 ### 2. Timestamp Handling
@@ -401,7 +260,7 @@ context.EntityName.set(entity);
 
 **OLD (TheGraph):**
 ```graphql
-type Pool @entity {
+type Entity @entity {
   id: ID!
   # ...
 }
@@ -409,36 +268,32 @@ type Pool @entity {
 
 **NEW (Envio):**
 ```graphql
-type Pool {
+type Entity {
   id: ID!
   # ...
 }
 ```
 
-### 4. Convert Raw Events to Envio Format
+### 2. Convert Raw Events to Envio Format
 
 **CONVERT raw event entities from TheGraph to Envio format:**
 
 ```graphql
 # OLD (TheGraph):
-type BorrowOrderCancelled @entity(immutable: true) {
+type EventEntity @entity(immutable: true) {
   id: Bytes!
-  borrower: Bytes!
-  rate: BigInt!
-  ltv: BigInt!
-  amount: BigInt!
+  field1: Bytes!
+  field2: BigInt!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
 
 # NEW (Envio):
-type BorrowOrderCancelled {
+type EventEntity {
   id: ID!
-  borrower: String!
-  rate: BigInt!
-  ltv: BigInt!
-  amount: BigInt!
+  field1: String!
+  field2: BigInt!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: String!
@@ -463,17 +318,17 @@ dataSources:
       address: "0x..."
     mapping:
       eventHandlers:
-        - event: OrderInserted(indexed address,indexed bool,uint256,uint256,uint256)
+        - event: EventName(indexed address,indexed bool,uint256,uint256,uint256)
 ```
 
 **NEW (config.yaml):**
 ```yaml
-- name: OrderBook
+- name: Contract
   address:
     - "0x..."
-  handler: src/EventHandlers.ts
+  handler: src/contract.ts
   events:
-    - event: OrderInserted(bool indexed isLender, address indexed maker, uint256 rate, uint256 ltv, uint256 amount)
+    - event: EventName(bool indexed isLender, address indexed maker, uint256 rate, uint256 ltv, uint256 amount)
 ```
 
 This uses the human readable event name, this is pulled from the ABI file
@@ -483,12 +338,12 @@ This uses the human readable event name, this is pulled from the ABI file
 When using transaction-level data, explicitly define field selection:
 
 ```yaml
-- name: OrderBook
+- name: Contract
   address:
     - "0x..."
-  handler: src/EventHandlers.ts
+  handler: src/contract.ts
   events:
-    - event: OrderInserted(address,bool,uint256,uint256,uint256)
+    - event: EventName(address,bool,uint256,uint256,uint256)
       field_selection:
         transaction_fields:
           - hash
@@ -537,88 +392,122 @@ When using transaction-level data, explicitly define field selection:
 ### 1. Simple Event Handler
 
 ```typescript
-// Reference: orderbook-subgraph/src/orderbook.ts
-OrderBook.BorrowOrderCanceled.handler(async ({ event, context }) => {
-  const entity: BorrowOrderCancelled = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    borrower: event.params.borrower,
-    rate: event.params.rate,
-    ltv: event.params.ltv,
-    amount: event.params.amount,
-    blockNumber: event.block.number,
+// Reference: original-subgraph/src/contract.ts
+Contract.EventName.handler(async ({ event, context }) => {
+  const entity: EventEntity = {
+    id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
+    field1: event.params.field1,
+    field2: event.params.field2,
+    blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
   };
 
-  context.BorrowOrderCancelled.set(entity);
+  context.EventEntity.set(entity);
 });
 ```
 
 ### 2. Factory Contract Registration
 
 ```typescript
-// Reference: orderbook-subgraph/src/orderbookFactory.ts
-OrderbookFactory.OrderbookCreated.contractRegister(({ event, context }) => {
-  context.addOrderBook(event.params.orderbook);
+// Reference: original-subgraph/src/factory.ts
+Factory.ContractCreated.contractRegister(({ event, context }) => {
+  context.addContract(event.params.contract);
 });
 
-OrderbookFactory.OrderbookCreated.handler(async ({ event, context }) => {
-  const entity: OrderbookCreated = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    loanToken: event.params.loanToken,
-    collateralToken: event.params.collateralToken,
-    orderbook: event.params.orderbook,
-    blockNumber: event.block.number,
+Factory.ContractCreated.handler(async ({ event, context }) => {
+  const entity: ContractCreated = {
+    id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
+    contract: event.params.contract,
+    blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
   };
 
-  context.OrderbookCreated.set(entity);
+  context.ContractCreated.set(entity);
 });
 ```
 
 ### 3. Complex Business Logic
 
 ```typescript
-// Reference: orderbook-subgraph/src/pool.ts
-Pool.Deposit.handler(async ({ event, context }) => {
-  // Get or create pool entity
-  let pool = await context.Pool.get(event.params.poolAddress);
-  if (!pool) {
-    pool = {
-      id: event.params.poolAddress,
-      address: event.params.poolAddress,
-      totalDeposits: BigInt(0),
-      totalBorrows: BigInt(0),
+// Reference: original-subgraph/src/contract.ts
+Contract.EventName.handler(async ({ event, context }) => {
+  // Get or create entity
+  let entity = await context.Entity.get(event.params.entityId);
+  if (!entity) {
+    entity = {
+      id: event.params.entityId,
+      field1: BigInt(0),
+      field2: BigInt(0),
       // ... other fields
     };
   }
 
-  // Update pool with new deposit
-  const updatedPool: Pool = {
-    ...pool,
-    totalDeposits: pool.totalDeposits + event.params.assets,
+  // Update entity with new data
+  const updatedEntity: Entity = {
+    ...entity,
+    field1: entity.field1 + event.params.value,
     updatedAt: BigInt(event.block.timestamp),
   };
 
-  context.Pool.set(updatedPool);
+  context.Entity.set(updatedEntity);
 
-  // Create deposit event
-  const depositEvent: Pool_Deposit = {
-    id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
-    pool_id: event.params.poolAddress,
-    sender: event.params.sender,
-    owner: event.params.owner,
-    assets: event.params.assets,
-    shares: event.params.shares,
-    blockNumber: event.block.number,
+  // Create event entity
+  const eventEntity: EventEntity = {
+    id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
+    entity_id: event.params.entityId,
+    value: event.params.value,
+    blockNumber: BigInt(event.block.number),
     blockTimestamp: BigInt(event.block.timestamp),
     transactionHash: event.transaction.hash,
   };
 
-  context.Pool_Deposit.set(depositEvent);
+  context.EventEntity.set(eventEntity);
 });
 ```
+
+## Incremental Entity Implementation
+
+**Start with simple entities that don't get affected by multiple handlers:**
+
+1. **Add field selection to config.yaml** for specific events that need transaction hash:
+   ```yaml
+   - event: EventName(address indexed param1, address indexed param2)
+     field_selection:
+       transaction_fields:
+         - hash
+   ```
+
+2. **Implement handler logic** based on original subgraph:
+   ```typescript
+   // Reference: original-subgraph/src/contract.ts - handleEventName
+   Contract.EventName.handler(async ({ event, context }) => {
+     const entity: EventEntity = {
+       id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
+       param1: event.params.param1,
+       param2: event.params.param2,
+       blockNumber: BigInt(event.block.number),
+       blockTimestamp: BigInt(event.block.timestamp),
+       transactionHash: event.transaction.hash,
+     };
+
+     context.EventEntity.set(entity);
+   });
+   ```
+
+3. **Remove `# to-do` comment** from schema for completed entities.
+
+4. **Validate with `pnpm codegen` and `pnpm tsc --noEmit`** after each implementation.
+
+**Batch Implementation Pattern:**
+
+For multiple similar entities, implement them all at once:
+
+1. **Add field selection for all events** that need transaction hash
+2. **Implement all handlers** following the same pattern
+3. **Remove all `# to-do` comments** for completed entities
+4. **Validate the entire batch** with codegen and TypeScript checks
 
 ## Validation Commands
 
@@ -633,11 +522,11 @@ After each change:
 Always include proper error handling:
 
 ```typescript
-OrderBook.OrderInserted.handler(async ({ event, context }) => {
+Contract.EventName.handler(async ({ event, context }) => {
   try {
     // Implementation here
   } catch (error) {
-    context.log.error(`Error in OrderInserted handler: ${error}`);
+    context.log.error(`Error in EventName handler: ${error}`);
     // Don't throw - let the indexer continue
   }
 });
