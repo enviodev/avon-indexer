@@ -141,7 +141,6 @@ type AccrueInterest {
   transactionHash: String!
 }
 
-# to-do
 type Approval {
   id: ID!
   owner: String!
@@ -191,7 +190,6 @@ type Deposit1 {
   transactionHash: String!
 }
 
-# to-do
 type FlashLoan {
   id: ID!
   caller: String!
@@ -255,7 +253,6 @@ type SupplyCollateral {
   transactionHash: String!
 }
 
-# to-do
 type Transfer {
   id: ID!
   from: String!

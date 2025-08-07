@@ -67,10 +67,16 @@ networks:
     events:
     - event: AccrueInterest(address indexed poolAddress, uint256 prevBorrowRate, uint256 interest, uint256 feeShares)
     - event: Approval(address indexed owner, address indexed spender, uint256 value)
+      field_selection:
+        transaction_fields:
+          - hash
     - event: Borrow(address indexed poolAddress, address caller, address indexed onBehalf, address indexed receiver, uint256 assets, uint256 shares)
     - event: Deposit(address indexed sender, address indexed owner, uint256 assets, uint256 shares)
     - event: DepositCollateral(address indexed poolAddress, address indexed caller, address indexed onBehalf, uint256 assets)
     - event: FlashLoan(address indexed caller, address indexed token, uint256 assets)
+      field_selection:
+        transaction_fields:
+          - hash
     - event: Liquidate(address indexed poolAddress, address indexed caller, address indexed borrower, uint256 repaidAssets, uint256 repaidShares, uint256 seizedAssets, uint256 badDebtAssets, uint256 badDebtShares)
     - event: Repay(address indexed poolAddress, address indexed caller, address indexed onBehalf, uint256 assets, uint256 shares)
     - event: Transfer(address indexed from, address indexed to, uint256 value)
@@ -79,7 +85,18 @@ networks:
   - name: Vault
     handler: src/vault.ts
     events:
-    - event: Deposit(address indexed sender, address indexed owner, uint256 assets, uint256 shares)
+    - event: Approval(address indexed owner, address indexed spender, uint256 value)
+      field_selection:
+        transaction_fields:
+          - hash
+    - event: OwnershipTransferred(address indexed previousOwner, address indexed newOwner)
+      field_selection:
+        transaction_fields:
+          - hash
     - event: Transfer(address indexed from, address indexed to, uint256 value)
+      field_selection:
+        transaction_fields:
+          - hash
+    - event: Deposit(address indexed sender, address indexed owner, uint256 assets, uint256 shares)
     - event: Withdraw(address indexed sender, address indexed receiver, address indexed owner, uint256 assets, uint256 shares)
 unordered_multichain_mode: true

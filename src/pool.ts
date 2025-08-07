@@ -3,6 +3,8 @@
  */
 import {
   Pool,
+  Approval,
+  FlashLoan,
 } from "generated";
 
 // Reference: orderbook-subgraph/src/pool.ts
@@ -11,10 +13,19 @@ Pool.AccrueInterest.handler(async ({ event, context }) => {
   // Reference: orderbook-subgraph/src/pool.ts - handleAccrueInterest
 });
 
-// Reference: orderbook-subgraph/src/pool.ts
+// Reference: orderbook-subgraph/src/pool.ts - handleApproval
 Pool.Approval.handler(async ({ event, context }) => {
-  // TODO: Implement business logic from subgraph
-  // Reference: orderbook-subgraph/src/pool.ts - handleApproval
+  const entity: Approval = {
+    id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
+    owner: event.params.owner,
+    spender: event.params.spender,
+    value: event.params.value,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  };
+
+  context.Approval.set(entity);
 });
 
 // Reference: orderbook-subgraph/src/pool.ts
@@ -35,10 +46,19 @@ Pool.DepositCollateral.handler(async ({ event, context }) => {
   // Reference: orderbook-subgraph/src/pool.ts - handleDepositCollateral
 });
 
-// Reference: orderbook-subgraph/src/pool.ts
+// Reference: orderbook-subgraph/src/pool.ts - handleFlashLoan
 Pool.FlashLoan.handler(async ({ event, context }) => {
-  // TODO: Implement business logic from subgraph
-  // Reference: orderbook-subgraph/src/pool.ts - handleFlashLoan
+  const entity: FlashLoan = {
+    id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
+    caller: event.params.caller,
+    token: event.params.token,
+    assets: event.params.assets,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  };
+
+  context.FlashLoan.set(entity);
 });
 
 // Reference: orderbook-subgraph/src/pool.ts
