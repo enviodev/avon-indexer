@@ -11,6 +11,310 @@ enum ActionType {
   LIQUIDATE
 }
 
+# to-do
+type BorrowOrderCancelled {
+  id: ID!
+  borrower: String!
+  rate: BigInt!
+  ltv: BigInt!
+  amount: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+# to-do
+type BorrowOrderPlaced {
+  id: ID!
+  borrower: String!
+  rate: BigInt!
+  ltv: BigInt!
+  amount: BigInt!
+  minAmountExpected: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+# to-do
+type OrderCanceled {
+  id: ID!
+  isLender: Boolean!
+  maker: String!
+  rate: BigInt!
+  ltv: BigInt!
+  amount: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+# to-do
+type OrderInserted {
+  id: ID!
+  isLender: Boolean!
+  maker: String!
+  rate: BigInt!
+  ltv: BigInt!
+  amount: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+# to-do
+type OrderMatched {
+  id: ID!
+  lender: String!
+  borrower: String!
+  rate: BigInt!
+  ltv: BigInt!
+  amount: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+# to-do
+type OwnershipTransferStarted {
+  id: ID!
+  previousOwner: String!
+  newOwner: String!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+type OwnershipTransferred {
+  id: ID!
+  previousOwner: String!
+  newOwner: String!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+# to-do
+type Paused {
+  id: ID!
+  account: String!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+# to-do
+type PoolCreated {
+  id: ID!
+  Orderbook_id: String!
+  PoolAddress: String!
+  params_loanToken: String!
+  params_collateralToken: String!
+  params_oracle: String!
+  params_irm: String!
+  params_lltv: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+# to-do
+type PoolManagerSet {
+  id: ID!
+  manager: String!
+  status: Boolean!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+# to-do
+type Unpaused {
+  id: ID!
+  account: String!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+# to-do
+type AccrueInterest {
+  id: ID!
+  Pool_id: String!
+  prevBorrowRate: BigInt!
+  interest: BigInt!
+  feeShares: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+# to-do
+type Approval {
+  id: ID!
+  owner: String!
+  spender: String!
+  value: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+# to-do
+type Borrow {
+  id: ID!
+  Pool_id: String!
+  caller: String!
+  onBehalf: String!
+  receiver: String!
+  assets: BigInt!
+  shares: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+# to-do
+type Deposit {
+  id: ID!
+  Pool_id: String!
+  caller: String!
+  assets: BigInt!
+  shares: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+  isVault: Boolean
+}
+
+# to-do
+type Deposit1 {
+  id: ID!
+  sender: String!
+  owner: String!
+  assets: BigInt!
+  shares: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+# to-do
+type FlashLoan {
+  id: ID!
+  caller: String!
+  token: String!
+  assets: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+# to-do
+type Liquidate {
+  id: ID!
+  Pool_id: String!
+  caller: String!
+  borrower: String!
+  repaidAssets: BigInt!
+  repaidShares: BigInt!
+  seizedAssets: BigInt!
+  badDebtAssets: BigInt!
+  badDebtShares: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+# to-do
+type Repay {
+  id: ID!
+  Pool_id: String!
+  caller: String!
+  onBehalf: String!
+  assets: BigInt!
+  shares: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+# to-do
+type SetAuthorization {
+  id: ID!
+  caller: String!
+  authorizer: String!
+  authorized: String!
+  newIsAuthorized: Boolean!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+# to-do
+type SupplyCollateral {
+  id: ID!
+  Pool_id: String!
+  caller: String!
+  onBehalf: String!
+  assets: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+# to-do
+type Transfer {
+  id: ID!
+  from: String!
+  to: String!
+  value: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+# to-do
+type Withdraw {
+  id: ID!
+  Pool_id: String!
+  caller: String!
+  receiver: String!
+  assets: BigInt!
+  shares: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+  isVault: Boolean
+}
+
+# to-do
+type Withdraw1 {
+  id: ID!
+  sender: String!
+  receiver: String!
+  owner: String!
+  assets: BigInt!
+  shares: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+# to-do
+type WithdrawCollateral {
+  id: ID!
+  Pool_id: String!
+  caller: String!
+  onBehalf: String!
+  receiver: String!
+  assets: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
+}
+
+# to-do
 type Token {
   id: ID!
   name: String!
@@ -25,6 +329,7 @@ type Token {
   address: String!
 }
 
+# to-do
 type TokenHourData {
   id: ID!
   token_id: String!
@@ -34,6 +339,7 @@ type TokenHourData {
   hourId: BigInt!
 }
 
+# to-do
 type TokenDayData {
   id: ID!
   token_id: String!
@@ -43,6 +349,23 @@ type TokenDayData {
   dayId: BigInt!
 }
 
+# to-do
+type PoolEventArgs {
+  id: ID!
+  account: String!
+  depositAmount: BigInt!
+  withdrawAmount: BigInt!
+  borrowAmount: BigInt!
+  repayAmount: BigInt!
+  depositShares: BigInt!
+  withdrawShares: BigInt!
+  borrowShares: BigInt!
+  repayShares: BigInt!
+  addcollateral: BigInt!
+  removecollateral: BigInt!
+}
+
+# to-do
 type PoolDataEntity {
   id: ID!
   totalSupplyAssets: BigInt!
@@ -70,6 +393,7 @@ type PoolDataEntity {
   poolFactory_id: String!
 }
 
+# to-do
 type PoolDataHourEntity {
   id: ID!
   totalSupplyAssets: BigInt!
@@ -98,6 +422,7 @@ type PoolDataHourEntity {
   loanTokenHourData_id: String
 }
 
+# to-do
 type PoolDataDayEntity {
   id: ID!
   totalSupplyAssets: BigInt!
@@ -126,6 +451,7 @@ type PoolDataDayEntity {
   loanTokenDayData_id: String
 }
 
+# to-do
 type UserDataEntity {
   id: ID!
   timestamp: BigInt!
@@ -138,6 +464,7 @@ type UserDataEntity {
   totalWithdrawCollateralVolume: BigInt!
 }
 
+# to-do
 type UserDataHourEntity {
   id: ID!
   timestamp: BigInt!
@@ -153,6 +480,7 @@ type UserDataHourEntity {
   prev_id: String
 }
 
+# to-do
 type UserDataDayEntity {
   id: ID!
   timestamp: BigInt!
@@ -168,6 +496,7 @@ type UserDataDayEntity {
   prev_id: String
 }
 
+# to-do
 type UserDataPoolEntity {
   id: ID!
   timestamp: BigInt!
@@ -187,6 +516,7 @@ type UserDataPoolEntity {
   pool_id: String!
 }
 
+# to-do
 type UserDataPoolHourEntity {
   id: ID!
   timestamp: BigInt!
@@ -208,6 +538,7 @@ type UserDataPoolHourEntity {
   collateralAssets: BigDecimal!
 }
 
+# to-do
 type UserDataPoolDayEntity {
   id: ID!
   timestamp: BigInt!
@@ -229,6 +560,7 @@ type UserDataPoolDayEntity {
   userDataPool_id: String!
 }
 
+# to-do
 type PoolFactory {
   id: ID!
   timestamp: BigInt!
@@ -237,6 +569,7 @@ type PoolFactory {
   totalWhitelistedPools: BigInt!
 }
 
+# to-do
 type VaultFactory {
   id: ID!
   timestamp: BigInt!
@@ -244,6 +577,7 @@ type VaultFactory {
   totalVaults: BigInt!
 }
 
+# to-do
 type VaultDataEntity {
   id: ID!
   manager: String!
@@ -263,6 +597,7 @@ type VaultDataEntity {
   decimals: BigInt!
 }
 
+# to-do
 type VaultDataDayEntity {
   id: ID!
   dayId: BigInt!
@@ -280,6 +615,7 @@ type VaultDataDayEntity {
   tokenDayData_id: String
 }
 
+# to-do
 type VaultDataHourEntity {
   id: ID!
   hourId: BigInt!
@@ -297,6 +633,7 @@ type VaultDataHourEntity {
   tokenHourData_id: String
 }
 
+# to-do
 type UserDataVaultEntity {
   id: ID!
   timestamp: BigInt!
@@ -308,6 +645,7 @@ type UserDataVaultEntity {
   vault_id: String!
 }
 
+# to-do
 type UserDataVaultDayEntity {
   id: ID!
   timestamp: BigInt!
@@ -322,6 +660,7 @@ type UserDataVaultDayEntity {
   userDataVault_id: String!
 }
 
+# to-do
 type UserDataVaultHourEntity {
   id: ID!
   timestamp: BigInt!
@@ -336,6 +675,7 @@ type UserDataVaultHourEntity {
   userDataVault_id: String!
 }
 
+# to-do
 type PoolAction {
   id: ID!
   poolAddress: String!
@@ -353,6 +693,7 @@ type PoolAction {
   isVault: Boolean
 }
 
+# to-do
 type UserAction {
   id: ID!
   poolAddress: String
@@ -372,6 +713,7 @@ type UserAction {
   isVault: Boolean
 }
 
+# to-do
 type OrderbookCreated {
   id: ID!
   loanToken: String!
@@ -382,6 +724,7 @@ type OrderbookCreated {
   transactionHash: String!
 }
 
+# to-do
 type ValueUpdate {
   id: ID!
   value: BigInt!

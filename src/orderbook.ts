@@ -3,6 +3,7 @@
  */
 import {
   OrderBook,
+  OwnershipTransferred,
 } from "generated";
 
 // Reference: orderbook-subgraph/src/orderbook.ts
@@ -36,15 +37,18 @@ OrderBook.OrderMatched.handler(async ({ event, context }) => {
 });
 
 // Reference: orderbook-subgraph/src/orderbook.ts
-OrderBook.OwnershipTransferStarted.handler(async ({ event, context }) => {
-  // TODO: Implement business logic from subgraph
-  // Reference: orderbook-subgraph/src/orderbook.ts - handleOwnershipTransferStarted
-});
-
-// Reference: orderbook-subgraph/src/orderbook.ts
 OrderBook.OwnershipTransferred.handler(async ({ event, context }) => {
-  // TODO: Implement business logic from subgraph
   // Reference: orderbook-subgraph/src/orderbook.ts - handleOwnershipTransferred
+  const entity: OwnershipTransferred = {
+    id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
+    previousOwner: event.params.previousOwner,
+    newOwner: event.params.newOwner,
+    blockNumber: BigInt(event.block.number),
+    blockTimestamp: BigInt(event.block.timestamp),
+    transactionHash: event.transaction.hash,
+  };
+
+  context.OwnershipTransferred.set(entity);
 });
 
 // Reference: orderbook-subgraph/src/orderbook.ts

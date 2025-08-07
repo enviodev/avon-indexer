@@ -228,6 +228,39 @@ For each handler, examine the corresponding subgraph file:
 
 ### Step 5: Implement Migration Patterns
 
+### Step 6: Incremental Entity Implementation
+
+**Start with simple entities that don't get affected by multiple handlers:**
+
+1. **Add field selection to config.yaml** for specific events that need transaction hash:
+   ```yaml
+   - event: OwnershipTransferred(address indexed previousOwner, address indexed newOwner)
+     field_selection:
+       transaction_fields:
+         - hash
+   ```
+
+2. **Implement handler logic** based on original subgraph:
+   ```typescript
+   // Reference: orderbook-subgraph/src/orderbook.ts - handleOwnershipTransferred
+   OrderBook.OwnershipTransferred.handler(async ({ event, context }) => {
+     const entity: OwnershipTransferred = {
+       id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
+       previousOwner: event.params.previousOwner,
+       newOwner: event.params.newOwner,
+       blockNumber: BigInt(event.block.number),
+       blockTimestamp: BigInt(event.block.timestamp),
+       transactionHash: event.transaction.hash,
+     };
+
+     context.OwnershipTransferred.set(entity);
+   });
+   ```
+
+3. **Remove `# to-do` comment** from schema for completed entities.
+
+4. **Validate with `pnpm codegen` and `pnpm tsc --noEmit`** after each implementation.
+
 #### Entity Creation Pattern
 
 ```typescript
@@ -324,7 +357,7 @@ let entity = new EntityName(
 **Envio (NEW):**
 ```typescript
 const entity: EntityName = {
-  id: `${event.chainId}_${event.block.number}_${event.logIndex}`,
+  id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
   // ... other fields
 };
 ```
@@ -361,31 +394,41 @@ type Pool {
 }
 ```
 
-### 4. Replace Raw Events with Business Logic
+### 4. Convert Raw Events to Envio Format
 
-**REMOVE raw event entities:**
+**CONVERT raw event entities from TheGraph to Envio format:**
+
 ```graphql
-type OrderBook_BorrowOrderCanceled {
+# OLD (TheGraph):
+type BorrowOrderCancelled @entity(immutable: true) {
+  id: Bytes!
+  borrower: Bytes!
+  rate: BigInt!
+  ltv: BigInt!
+  amount: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+# NEW (Envio):
+type BorrowOrderCancelled {
   id: ID!
   borrower: String!
   rate: BigInt!
   ltv: BigInt!
   amount: BigInt!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: String!
 }
 ```
 
-**ADD business logic entities:**
-```graphql
-type PoolDataEntity {
-  id: ID!
-  totalSupplyAssets: BigInt!
-  totalBorrowAssets: BigInt!
-  utilization: BigDecimal!
-  depositApy: BigInt!
-  loanToken_id: String!
-  collateralToken_id: String!
-}
-```
+**KEEP all entities from the original subgraph** but convert them to Envio format:
+- Remove `@entity` decorators
+- Change `Bytes!` to `String!`
+- Change `ID!` to `ID!` (keep as is)
+- Keep all business logic entities
 
 ## Configuration Migration
 
@@ -457,12 +500,10 @@ When using transaction-level data, explicitly define field selection:
 ### For Schema Updates:
 
 1. ✅ Remove @entity decorators
-2. ✅ Convert relationships to entity_id fields
-3. ✅ Remove entity arrays
-4. ✅ Remove raw event entities
-5. ✅ Add business logic entities
-6. ✅ Run `pnpm codegen` after changes
-7. ✅ Validate with `pnpm tsc --noEmit`
+2. ✅ Convert Bytes! to String! in all entities
+3. ✅ Keep all entities from original subgraph
+4. ✅ Run `pnpm codegen` after changes
+5. ✅ Validate with `pnpm tsc --noEmit`
 
 ### For Configuration:
 
