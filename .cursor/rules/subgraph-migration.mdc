@@ -260,7 +260,7 @@ context.EntityName.set(entity);
 
 **OLD (TheGraph):**
 ```graphql
-type Entity @entity {
+type Pool @entity {
   id: ID!
   # ...
 }
@@ -268,13 +268,35 @@ type Entity @entity {
 
 **NEW (Envio):**
 ```graphql
-type Entity {
+type Pool {
   id: ID!
   # ...
 }
 ```
 
-### 2. Convert Raw Events to Envio Format
+### 2. Avoid Reserved Words in Field Names
+
+**IMPORTANT:** Avoid using reserved words as field names. Common reserved words include:
+- `action` (use `actionType` instead)
+- `type` (use `entityType` instead)
+- `order` (use `orderType` instead)
+- `group` (use `groupType` instead)
+- `user` (use `userId` instead)
+
+**Example:**
+```graphql
+# ❌ AVOID - Reserved word
+type UserAction {
+  action: ActionType!
+}
+
+# ✅ USE - Descriptive name
+type UserAction {
+  actionType: ActionType!
+}
+```
+
+### 3. Convert Raw Events to Envio Format
 
 **CONVERT raw event entities from TheGraph to Envio format:**
 
@@ -305,6 +327,7 @@ type EventEntity {
 - Change `Bytes!` to `String!`
 - Change `ID!` to `ID!` (keep as is)
 - Keep all business logic entities
+- **Rename reserved word fields** to avoid conflicts
 
 ## Configuration Migration
 
