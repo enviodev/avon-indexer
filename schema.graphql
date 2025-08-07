@@ -1,0 +1,210 @@
+type OrderBook_BorrowOrderCanceled {
+  id: ID!
+  borrower: String!
+  rate: BigInt!
+  ltv: BigInt!
+  amount: BigInt!
+}
+
+type OrderBook_BorrowOrderPlaced {
+  id: ID!
+  borrower: String!
+  rate: BigInt!
+  ltv: BigInt!
+  amount: BigInt!
+  minAmountExpected: BigInt!
+}
+
+type OrderBook_OrderCanceled {
+  id: ID!
+  isLender: Boolean!
+  maker: String!
+  rate: BigInt!
+  ltv: BigInt!
+  amount: BigInt!
+}
+
+type OrderBook_OrderInserted {
+  id: ID!
+  isLender: Boolean!
+  maker: String!
+  rate: BigInt!
+  ltv: BigInt!
+  amount: BigInt!
+}
+
+type OrderBook_OrderMatched {
+  id: ID!
+  lender: String!
+  borrower: String!
+  rate: BigInt!
+  ltv: BigInt!
+  amount: BigInt!
+}
+
+type OrderBook_OwnershipTransferStarted {
+  id: ID!
+  previousOwner: String!
+  newOwner: String!
+}
+
+type OrderBook_OwnershipTransferred {
+  id: ID!
+  previousOwner: String!
+  newOwner: String!
+}
+
+type OrderBook_Paused {
+  id: ID!
+  account: String!
+}
+
+type OrderBook_PoolWhitelisted {
+  id: ID!
+  pool: String!
+}
+
+type OrderBook_Unpaused {
+  id: ID!
+  account: String!
+}
+
+type OrderbookFactory_OrderbookCreated {
+  id: ID!
+  loanToken: String!
+  collateralToken: String!
+  orderbook: String!
+}
+
+type Pool_AccrueInterest {
+  id: ID!
+  poolAddress: String!
+  prevBorrowRate: BigInt!
+  interest: BigInt!
+  feeShares: BigInt!
+}
+
+type Pool_Approval {
+  id: ID!
+  owner: String!
+  spender: String!
+  value: BigInt!
+}
+
+type Pool_Borrow {
+  id: ID!
+  poolAddress: String!
+  caller: String!
+  onBehalf: String!
+  receiver: String!
+  assets: BigInt!
+  shares: BigInt!
+}
+
+type Pool_Deposit {
+  id: ID!
+  sender: String!
+  owner: String!
+  assets: BigInt!
+  shares: BigInt!
+}
+
+type Pool_DepositCollateral {
+  id: ID!
+  poolAddress: String!
+  caller: String!
+  onBehalf: String!
+  assets: BigInt!
+}
+
+type Pool_FlashLoan {
+  id: ID!
+  caller: String!
+  token: String!
+  assets: BigInt!
+}
+
+type Pool_Liquidate {
+  id: ID!
+  poolAddress: String!
+  caller: String!
+  borrower: String!
+  repaidAssets: BigInt!
+  repaidShares: BigInt!
+  seizedAssets: BigInt!
+  badDebtAssets: BigInt!
+  badDebtShares: BigInt!
+}
+
+type Pool_Repay {
+  id: ID!
+  poolAddress: String!
+  caller: String!
+  onBehalf: String!
+  assets: BigInt!
+  shares: BigInt!
+}
+
+type Pool_Transfer {
+  id: ID!
+  from: String!
+  to: String!
+  value: BigInt!
+}
+
+type Pool_Withdraw {
+  id: ID!
+  sender: String!
+  receiver: String!
+  owner: String!
+  assets: BigInt!
+  shares: BigInt!
+}
+
+type Pool_WithdrawCollateral {
+  id: ID!
+  poolAddress: String!
+  caller: String!
+  onBehalf: String!
+  receiver: String!
+  assets: BigInt!
+}
+
+type PoolFactory_PoolCreated {
+  id: ID!
+  pool: String!
+  loanToken: String!
+  collateralToken: String!
+}
+
+type Vault_Deposit {
+  id: ID!
+  sender: String!
+  owner: String!
+  assets: BigInt!
+  shares: BigInt!
+}
+
+type Vault_Transfer {
+  id: ID!
+  from: String!
+  to: String!
+  value: BigInt!
+}
+
+type Vault_Withdraw {
+  id: ID!
+  sender: String!
+  receiver: String!
+  owner: String!
+  assets: BigInt!
+  shares: BigInt!
+}
+
+type VaultFactory_VaultCreated {
+  id: ID!
+  vault: String!
+  token: String!
+  poolManager: String!
+}
+
