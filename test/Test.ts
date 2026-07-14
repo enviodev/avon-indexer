@@ -1,7 +1,5 @@
 import assert from "assert";
-import { 
-  TestHelpers
-} from "generated";
+import { TestHelpers } from "envio";
 const { MockDb, OrderBook } = TestHelpers;
 
 describe("OrderBook contract tests", () => {

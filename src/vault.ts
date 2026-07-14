@@ -1,16 +1,12 @@
 /*
  * Vault contract event handlers
  */
-import {
-  Vault,
-  Approval,
-  OwnershipTransferred,
-  Transfer,
-  OwnershipTransferStarted,
-} from "generated";
+import { indexer, Approval, OwnershipTransferred, Transfer, OwnershipTransferStarted } from "envio";
 
 // Reference: orderbook-subgraph/src/vault.ts - handleApproval
-Vault.Approval.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "Vault", event: "Approval" },
+  async ({ event, context }) => {
   const entity: Approval = {
     id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
     owner: event.params.owner,
@@ -22,10 +18,13 @@ Vault.Approval.handler(async ({ event, context }) => {
   };
 
   context.Approval.set(entity);
-});
+}
+);
 
 // Reference: orderbook-subgraph/src/vault.ts - handleOwnershipTransferred
-Vault.OwnershipTransferred.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "Vault", event: "OwnershipTransferred" },
+  async ({ event, context }) => {
   const entity: OwnershipTransferred = {
     id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
     previousOwner: event.params.previousOwner,
@@ -36,10 +35,13 @@ Vault.OwnershipTransferred.handler(async ({ event, context }) => {
   };
 
   context.OwnershipTransferred.set(entity);
-});
+}
+);
 
 // Reference: orderbook-subgraph/src/vault.ts - handleTransfer
-Vault.Transfer.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "Vault", event: "Transfer" },
+  async ({ event, context }) => {
   const entity: Transfer = {
     id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
     from: event.params.from,
@@ -51,22 +53,31 @@ Vault.Transfer.handler(async ({ event, context }) => {
   };
 
   context.Transfer.set(entity);
-});
+}
+);
 
 // Reference: orderbook-subgraph/src/vault.ts
-Vault.Deposit.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "Vault", event: "Deposit" },
+  async ({ event, context }) => {
   // TODO: Implement business logic from subgraph
   // Reference: orderbook-subgraph/src/vault.ts - handleDeposit
-});
+}
+);
 
 // Reference: orderbook-subgraph/src/vault.ts
-Vault.Withdraw.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "Vault", event: "Withdraw" },
+  async ({ event, context }) => {
   // TODO: Implement business logic from subgraph
   // Reference: orderbook-subgraph/src/vault.ts - handleWithdraw
-});
+}
+);
 
 // Reference: orderbook-subgraph/src/vault.ts - handleOwnershipTransferStarted
-Vault.OwnershipTransferStarted.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "Vault", event: "OwnershipTransferStarted" },
+  async ({ event, context }) => {
   const entity: OwnershipTransferStarted = {
     id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
     previousOwner: event.params.previousOwner,
@@ -77,4 +88,5 @@ Vault.OwnershipTransferStarted.handler(async ({ event, context }) => {
   };
 
   context.OwnershipTransferStarted.set(entity);
-}); 
+}
+); 

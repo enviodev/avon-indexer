@@ -1,7 +1,9 @@
 # yaml-language-server: $schema=./node_modules/envio/evm.schema.json
 name: envio-indexer
-networks:
+chains:
 - id: 6342
+  hypersync_config:
+    url: "https://6342.hypersync.xyz"
   start_block: 0
   contracts:
   - name: OrderbookFactory
@@ -117,4 +119,3 @@ networks:
           - hash
     - event: Deposit(address indexed sender, address indexed owner, uint256 assets, uint256 shares)
     - event: Withdraw(address indexed sender, address indexed receiver, address indexed owner, uint256 assets, uint256 shares)
-unordered_multichain_mode: true

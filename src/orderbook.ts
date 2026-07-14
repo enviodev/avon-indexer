@@ -1,21 +1,12 @@
 /*
  * OrderBook contract event handlers
  */
-import {
-  OrderBook,
-  BorrowOrderCancelled,
-  BorrowOrderPlaced,
-  OrderCanceled,
-  OrderInserted,
-  OrderMatched,
-  OwnershipTransferStarted,
-  OwnershipTransferred,
-  Paused,
-  Unpaused,
-} from "generated";
+import { indexer, BorrowOrderCancelled, BorrowOrderPlaced, OrderCanceled, OrderInserted, OrderMatched, OwnershipTransferStarted, OwnershipTransferred, Paused, Unpaused } from "envio";
 
 // Reference: orderbook-subgraph/src/orderbook.ts - handleBorrowOrderCancelled
-OrderBook.BorrowOrderCanceled.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "OrderBook", event: "BorrowOrderCanceled" },
+  async ({ event, context }) => {
   const entity: BorrowOrderCancelled = {
     id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
     borrower: event.params.borrower,
@@ -28,10 +19,13 @@ OrderBook.BorrowOrderCanceled.handler(async ({ event, context }) => {
   };
 
   context.BorrowOrderCancelled.set(entity);
-});
+}
+);
 
 // Reference: orderbook-subgraph/src/orderbook.ts - handleBorrowOrderPlaced
-OrderBook.BorrowOrderPlaced.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "OrderBook", event: "BorrowOrderPlaced" },
+  async ({ event, context }) => {
   const entity: BorrowOrderPlaced = {
     id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
     borrower: event.params.borrower,
@@ -45,10 +39,13 @@ OrderBook.BorrowOrderPlaced.handler(async ({ event, context }) => {
   };
 
   context.BorrowOrderPlaced.set(entity);
-});
+}
+);
 
 // Reference: orderbook-subgraph/src/orderbook.ts - handleOrderCanceled
-OrderBook.OrderCanceled.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "OrderBook", event: "OrderCanceled" },
+  async ({ event, context }) => {
   const entity: OrderCanceled = {
     id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
     isLender: event.params.isLender,
@@ -62,10 +59,13 @@ OrderBook.OrderCanceled.handler(async ({ event, context }) => {
   };
 
   context.OrderCanceled.set(entity);
-});
+}
+);
 
 // Reference: orderbook-subgraph/src/orderbook.ts - handleOrderInserted
-OrderBook.OrderInserted.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "OrderBook", event: "OrderInserted" },
+  async ({ event, context }) => {
   const entity: OrderInserted = {
     id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
     isLender: event.params.isLender,
@@ -79,10 +79,13 @@ OrderBook.OrderInserted.handler(async ({ event, context }) => {
   };
 
   context.OrderInserted.set(entity);
-});
+}
+);
 
 // Reference: orderbook-subgraph/src/orderbook.ts - handleOrderMatched
-OrderBook.OrderMatched.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "OrderBook", event: "OrderMatched" },
+  async ({ event, context }) => {
   const entity: OrderMatched = {
     id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
     lender: event.params.lender,
@@ -96,10 +99,13 @@ OrderBook.OrderMatched.handler(async ({ event, context }) => {
   };
 
   context.OrderMatched.set(entity);
-});
+}
+);
 
 // Reference: orderbook-subgraph/src/orderbook.ts - handleOwnershipTransferStarted
-OrderBook.OwnershipTransferStarted.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "OrderBook", event: "OwnershipTransferStarted" },
+  async ({ event, context }) => {
   const entity: OwnershipTransferStarted = {
     id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
     previousOwner: event.params.previousOwner,
@@ -110,10 +116,13 @@ OrderBook.OwnershipTransferStarted.handler(async ({ event, context }) => {
   };
 
   context.OwnershipTransferStarted.set(entity);
-});
+}
+);
 
 // Reference: orderbook-subgraph/src/orderbook.ts - handleOwnershipTransferred
-OrderBook.OwnershipTransferred.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "OrderBook", event: "OwnershipTransferred" },
+  async ({ event, context }) => {
   const entity: OwnershipTransferred = {
     id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
     previousOwner: event.params.previousOwner,
@@ -124,10 +133,13 @@ OrderBook.OwnershipTransferred.handler(async ({ event, context }) => {
   };
 
   context.OwnershipTransferred.set(entity);
-});
+}
+);
 
 // Reference: orderbook-subgraph/src/orderbook.ts - handlePaused
-OrderBook.Paused.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "OrderBook", event: "Paused" },
+  async ({ event, context }) => {
   const entity: Paused = {
     id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
     account: event.params.account,
@@ -137,16 +149,22 @@ OrderBook.Paused.handler(async ({ event, context }) => {
   };
 
   context.Paused.set(entity);
-});
+}
+);
 
 // Reference: orderbook-subgraph/src/orderbook.ts - handlePoolWhitelisted
-OrderBook.PoolWhitelisted.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "OrderBook", event: "PoolWhitelisted" },
+  async ({ event, context }) => {
   // TODO: Implement business logic from subgraph
   // Reference: orderbook-subgraph/src/orderbook.ts - handlePoolWhitelisted
-});
+}
+);
 
 // Reference: orderbook-subgraph/src/orderbook.ts - handleUnpaused
-OrderBook.Unpaused.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "OrderBook", event: "Unpaused" },
+  async ({ event, context }) => {
   const entity: Unpaused = {
     id: `${event.chainId}_${event.transaction.hash}_${event.logIndex}`,
     account: event.params.account,
@@ -156,4 +174,5 @@ OrderBook.Unpaused.handler(async ({ event, context }) => {
   };
 
   context.Unpaused.set(entity);
-}); 
+}
+); 

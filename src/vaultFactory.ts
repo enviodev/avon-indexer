@@ -1,21 +1,22 @@
 /*
  * VaultFactory contract event handlers
  */
-import {
-  VaultFactory,
-  VaultDataEntity,
-  Token,
-} from "generated";
+import { indexer, VaultFactory, VaultDataEntity, Token } from "envio";
 import { getTokenMetadata } from "./utils/contractHelpers";
 import { ONE_BI, ZERO_BI, ZERO_BD, ONE_BD } from "./utils/constants";
 
 // Reference: orderbook-subgraph/src/vaultFactory.ts
-VaultFactory.VaultCreated.contractRegister(({ event, context }) => {
-  context.addVault(event.params.vault);
-});
+indexer.contractRegister(
+  { contract: "VaultFactory", event: "VaultCreated" },
+  ({ event, context }) => {
+  context.chain.Vault.add(event.params.vault);
+}
+);
 
 // Reference: orderbook-subgraph/src/vaultFactory.ts - handleVaultCreated
-VaultFactory.VaultCreated.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "VaultFactory", event: "VaultCreated" },
+  async ({ event, context }) => {
   try {
     // Get or create VaultFactory entity
     let vaultFactory = await context.VaultFactory.get(ONE_BI.toString());
@@ -100,4 +101,5 @@ VaultFactory.VaultCreated.handler(async ({ event, context }) => {
     console.error(`Error in VaultCreated handler: ${error}`);
     // Don't throw - let the indexer continue
   }
-}); 
+}
+); 

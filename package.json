@@ -22,13 +22,11 @@
   },
   "dependencies": {
     "dotenv": "^17.2.1",
-    "envio": "2.26.0",
+    "envio": "3.2.1",
     "viem": "^2.33.3"
   },
-  "optionalDependencies": {
-    "generated": "./generated"
-  },
   "engines": {
-    "node": ">=18.0.0"
-  }
+    "node": ">=22.0.0"
+  },
+  "type": "module"
 }

@@ -1,21 +1,22 @@
 /*
  * OrderbookFactory contract event handlers
  */
-import {
-  OrderbookFactory,
-  OrderbookCreated,
-  Token,
-} from "generated";
+import { indexer, OrderbookCreated, Token } from "envio";
 import { getTokenMetadata } from "./utils/contractHelpers";
 import { ZERO_BD, MULTICALL_ERC20 } from "./utils/constants";
 
 // Reference: orderbook-subgraph/src/orderbookFactory.ts
-OrderbookFactory.OrderbookCreated.contractRegister(({ event, context }) => {
-  context.addOrderBook(event.params.orderbook);
-});
+indexer.contractRegister(
+  { contract: "OrderbookFactory", event: "OrderbookCreated" },
+  ({ event, context }) => {
+  context.chain.OrderBook.add(event.params.orderbook);
+}
+);
 
 // Reference: orderbook-subgraph/src/orderbookFactory.ts - handleOrderbookCreated
-OrderbookFactory.OrderbookCreated.handler(async ({ event, context }) => {
+indexer.onEvent(
+  { contract: "OrderbookFactory", event: "OrderbookCreated" },
+  async ({ event, context }) => {
   try {
     // Skip specific orderbook addresses (from original subgraph)
     const orderbookAddress = event.params.orderbook.toLowerCase();
@@ -104,4 +105,5 @@ OrderbookFactory.OrderbookCreated.handler(async ({ event, context }) => {
     context.log.error(`Error in OrderbookCreated handler: ${error}`);
     // Don't throw - let the indexer continue
   }
-}); 
+}
+); 
